@@ -5,8 +5,12 @@ libkolab (0.6.0-2) unstable; urgency=medium
   * Refresh patches
   * Renmame libkolab0 to libkolab0v5 for gcc-5 transition and recreate
     symbols file
+  * Update Diane Trout's email address.
+  * Remove override_dh_makeshlibs, it was a relic
+    from before libkolab was using pkgkde_symbolshelper.
+  * Add breaks/replaces for libkolab0
 
- -- Diane Trout <diane@debian.org>  Mon, 03 Aug 2015 15:57:21 -0700
+ -- Diane Trout <diane@debian.org>  Tue, 18 Aug 2015 15:28:16 -0700
 
 libkolab (0.6.0-1) unstable; urgency=medium
 
