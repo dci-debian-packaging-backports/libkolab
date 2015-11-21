@@ -1,9 +1,9 @@
-usr/lib*/python*/*-packages/kolab/_shared.so
-usr/lib*/python*/*-packages/kolab/shared.py
-usr/lib*/python*/*-packages/kolab/_calendaring.so
-usr/lib*/python*/*-packages/kolab/calendaring.py
-usr/lib*/python*/*-packages/kolab/_icalendar.so
-usr/lib*/python*/*-packages/kolab/icalendar.py
-usr/lib*/python*/*-packages/kolab/_kolabobject.so
-usr/lib*/python*/*-packages/kolab/kolabobject.py
 usr/lib*/python*/*-packages/kolab/__init__.py
+usr/lib*/python*/*-packages/kolab/_calendaring.so
+usr/lib*/python*/*-packages/kolab/_icalendar.so
+usr/lib*/python*/*-packages/kolab/_kolabobject.so
+usr/lib*/python*/*-packages/kolab/_shared.so
+usr/lib*/python*/*-packages/kolab/calendaring.py
+usr/lib*/python*/*-packages/kolab/icalendar.py
+usr/lib*/python*/*-packages/kolab/kolabobject.py
+usr/lib*/python*/*-packages/kolab/shared.py
