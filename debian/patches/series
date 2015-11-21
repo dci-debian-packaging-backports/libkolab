@@ -2,3 +2,4 @@ make_python_package.patch
 disable-rpath.patch
 add-linker-flags.patch
 0001-Allow-KDateTime-with-only-valid-date.patch
+upstream_Fix-build-with-Qt-5.5-and-also-adjust-to-the-latest-.patch

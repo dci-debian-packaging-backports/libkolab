@@ -1,0 +1,87 @@
+From bcc1eb4e735c81ce7afe2bc2b19a5e83d445f088 Mon Sep 17 00:00:00 2001
+From: Raymond Wooninck <tittiatcoke@gmail.com>
+Date: Wed, 22 Jul 2015 14:07:35 +0200
+Subject: [PATCH] Fix build with Qt 5.5  and also adjust to the latest kcontact
+ from git master
+
+This patch resolves a build issue with Qt5.5 and also adjusts to the latest kcontact changes made by Laurent Montel on
+Sunday 19 July.
+
+Test Plan: libkolab compiles correctly and has been tested by Dan Vratil and Luca Beltrame
+
+Patch by einar77
+---
+ conversion/kabcconversion.cpp | 10 ++++++----
+ kolabformatV2/contact.cpp     |  7 +++++--
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/conversion/kabcconversion.cpp b/conversion/kabcconversion.cpp
+index b7d7235..6a51e47 100644
+--- a/conversion/kabcconversion.cpp
++++ b/conversion/kabcconversion.cpp
+@@ -488,7 +488,9 @@ KContacts::Addressee toKABC(const Kolab::Contact &contact)
+       addressee.setTitle(fromStdString(contact.titles().at(0))); //TODO support multiple
+   }
+   if (!contact.urls().empty()) {
+-      addressee.setUrl(QUrl(fromStdString(contact.urls().at(0).url()))); //TODO support multiple
++      KContacts::ResourceLocatorUrl url;
++      url.setUrl(QUrl(fromStdString(contact.urls().at(0).url()))); //TODO support multiple
++      addressee.setUrl(url);
+       foreach(const Kolab::Url &u, contact.urls()) {
+           if (u.type() == Kolab::Url::Blog) {
+               addressee.insertCustom("KADDRESSBOOK", "BlogFeed", fromStdString(u.url()));
+@@ -664,8 +666,8 @@ Kolab::Contact fromKABC(const KContacts::Addressee &addressee)
+     }
+     
+     std::vector<Kolab::Url> urls;
+-    if (!addressee.url().isEmpty()) {
+-        urls.push_back(Kolab::Url(toStdString(addressee.url().url())));
++    if (!addressee.url().url().isEmpty()) {
++        urls.push_back(Kolab::Url(toStdString(addressee.url().url().url())));
+     }   
+     const QString &blogUrl = addressee.custom(QLatin1String("KADDRESSBOOK"), QLatin1String("BlogFeed"));
+     if (!blogUrl.isEmpty()) {
+@@ -703,7 +705,7 @@ Kolab::Contact fromKABC(const KContacts::Addressee &addressee)
+         c.setRelateds(std::vector<Kolab::Related>() << Kolab::Related(Kolab::Related::Text, toStdString(spouse), Kolab::Related::Spouse));
+     }
+     c.setBDay(fromDate(KDateTime(addressee.birthday(), KDateTime::ClockTime)));
+-    c.setAnniversary(fromDate(KDateTime(QDate::fromString( addressee.custom(QLatin1String("KADDRESSBOOK"), QLatin1String("X-Anniversary")), Qt::ISODate ), KDateTime::ClockTime)));
++    c.setAnniversary(fromDate(KDateTime(QDate::fromString( addressee.custom(QLatin1String("KADDRESSBOOK"), QLatin1String("X-Anniversary")), Qt::ISODate ), KDateTime::Spec(KDateTime::ClockTime))));
+     if (!addressee.photo().isEmpty()) {
+         std::string mimetype;
+         const std::string &photo = fromPicture(addressee.photo(), mimetype);
+diff --git a/kolabformatV2/contact.cpp b/kolabformatV2/contact.cpp
+index d125bd1..af95cff 100644
+--- a/kolabformatV2/contact.cpp
++++ b/kolabformatV2/contact.cpp
+@@ -947,7 +947,7 @@ void Contact::setFields( const KContacts::Addressee* addressee )
+   setPrefix( addressee->prefix() );
+   setSuffix( addressee->suffix() );
+   setOrganization( addressee->organization() );
+-  setWebPage( addressee->url().url() );
++  setWebPage( addressee->url().url().url() );
+   setIMAddress( addressee->custom( "KADDRESSBOOK", "X-IMAddress" ) );
+   setDepartment( addressee->department());
+   setOfficeLocation( addressee->custom( "KADDRESSBOOK", "X-Office" ) );
+@@ -1082,6 +1082,9 @@ void Contact::saveTo( KContacts::Addressee* addressee )
+ {
+   // TODO: This needs the same set of TODOs as the setFields method
+   KolabBase::saveTo( addressee );
++  KContacts::ResourceLocatorUrl url;
++
++  url.setUrl(QUrl(webPage()));
+ 
+   addressee->setGivenName( givenName() );
+   addressee->setAdditionalName( middleNames() );
+@@ -1090,7 +1093,7 @@ void Contact::saveTo( KContacts::Addressee* addressee )
+   addressee->setPrefix( prefix() );
+   addressee->setSuffix( suffix() );
+   addressee->setOrganization( organization() );
+-  addressee->setUrl( QUrl(webPage()) );
++  addressee->setUrl(url);
+   addressee->insertCustom( "KADDRESSBOOK", "X-IMAddress", imAddress() );
+   addressee->setDepartment( department() );
+   addressee->insertCustom( "KADDRESSBOOK", "X-Office", officeLocation() );
+-- 
+2.1.4
+
