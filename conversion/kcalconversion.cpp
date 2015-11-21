@@ -22,6 +22,7 @@
 #include <QtCore/QVector>
 #include <QtCore/QDebug>
 #include <QUrl>
+#include <QDate>
 #include <vector>
 
 #include "kolabformat/errorhandler.h"
@@ -306,7 +307,7 @@ void setIncidence(KCalCore::Incidence &i, const T &e)
             }
             attendee->setDelegator(toMailto(a.delegatedFrom().front().email(), a.delegatedFrom().front().name()).toString());
         }
-        if (!a.cutype() != CutypeIndividual) {
+        if (a.cutype() != CutypeIndividual) {
             attendee->customProperties().setNonKDECustomProperty(CUSTOM_KOLAB_CONTACT_CUTYPE, QString::number(a.cutype()));
         }
         i.addAttendee(attendee);
@@ -316,7 +317,7 @@ void setIncidence(KCalCore::Incidence &i, const T &e)
         if (!a.uri().empty()) {
             ptr = KCalCore::Attachment::Ptr(new KCalCore::Attachment(fromStdString(a.uri()), fromStdString(a.mimetype())));
         } else {
-            ptr = KCalCore::Attachment::Ptr(new KCalCore::Attachment(QByteArray::fromRawData(a.data().c_str(), a.data().size()), fromStdString(a.mimetype())));
+            ptr = KCalCore::Attachment::Ptr(new KCalCore::Attachment(QByteArray::fromRawData(a.data().c_str(), a.data().size()).toBase64(), fromStdString(a.mimetype())));
         }
         if (!a.label().empty()) {
             ptr->setLabel(fromStdString(a.label()));
@@ -360,12 +361,12 @@ void getIncidence(T &i, const I &e)
         a.setRole(fromRole(ptr->role()));
         if (!ptr->delegate().isEmpty()) {
             std::string name;
-            const std::string &email = fromMailto(ptr->delegate(), name);
+            const std::string &email = fromMailto(QUrl(ptr->delegate()), name);
             a.setDelegatedTo(std::vector<Kolab::ContactReference>() << Kolab::ContactReference(email, name));
         }
         if (!ptr->delegator().isEmpty()) {
             std::string name;
-            const std::string &email = fromMailto(ptr->delegator(), name);
+            const std::string &email = fromMailto(QUrl(ptr->delegator()), name);
             a.setDelegatedFrom(std::vector<Kolab::ContactReference>() << Kolab::ContactReference(email, name));
         }
         const QString &cutype = ptr->customProperties().nonKDECustomProperty(CUSTOM_KOLAB_CONTACT_CUTYPE);

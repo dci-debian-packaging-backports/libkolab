@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012  Sofia Balicka <balicka@kolabsys.com>
+ * Copyright (C) 2014  Christian Mollekopf <mollekopf@kolabsys.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,6 +38,37 @@ class KOLAB_EXPORT MIMEObject
 public:
     MIMEObject();
 
+    ObjectType parseMessage(const std::string &msg);
+
+    /**
+     * Set to override the autodetected object type, before parsing the message.
+     */
+    void setObjectType(ObjectType);
+
+    /**
+     * Set to override the autodetected version, before parsing the message.
+     */
+    void setVersion(Version);
+
+    /**
+     * Returns the Object type of the parsed kolab object.
+     */
+    ObjectType getType() const;
+
+    /**
+     * Returns the kolab-format version of the parsed kolab object.
+     */
+    Version getVersion() const;
+
+    Kolab::Event getEvent() const;
+    Kolab::Todo getTodo() const;
+    Kolab::Journal getJournal() const;
+    Kolab::Note getNote() const;
+    Kolab::Contact getContact() const;
+    Kolab::DistList getDistlist() const;
+    Kolab::Freebusy getFreebusy() const;
+    Kolab::Configuration getConfiguration() const;
+
     std::string writeEvent(const Kolab::Event  &event, Version version, const std::string &productId = std::string());
     Kolab::Event readEvent(const std::string &s);
 
@@ -55,6 +87,20 @@ public:
     std::string writeDistlist(const Kolab::DistList &distlist, Version version, const std::string &productId = std::string());
     Kolab::DistList readDistlist(const std::string &s);
 
+    std::string writeFreebusy(const Kolab::Freebusy &freebusy, Version version, const std::string &productId = std::string());
+    Kolab::Freebusy readFreebusy(const std::string &s);
+
+    std::string writeConfiguration(const Kolab::Configuration &freebusy, Version version, const std::string &productId = std::string());
+    Kolab::Configuration readConfiguration(const std::string &s);
+
+private:
+    //@cond PRIVATE
+    MIMEObject(const MIMEObject &other);
+    MIMEObject &operator=(const MIMEObject &rhs);
+    class Private;
+    Private *const d;
+    //@endcond
 };
+
 }
 #endif  

@@ -19,8 +19,9 @@
 
 #include <kcalcore/event.h>
 #include <kcalcore/todo.h>
-#include <Qt/qdebug.h>
+#include <qdebug.h>
 #include <kolabevent.h>
+#include <QDate>
 
 #include "conversion/kcalconversion.h"
 #include "conversion/commonconversion.h"

@@ -36,7 +36,7 @@
 #include "kolabbase.h"
 #include <qimage.h>
 
-namespace KABC {
+namespace KContacts {
   class Addressee;
   class Picture;
   class Sound;
@@ -57,7 +57,7 @@ public:
     Address() : kdeAddressType( -1 )
     {
     }
-    int kdeAddressType; // KABC::Address::Type
+    int kdeAddressType; // KContacts::Address::Type
     QString type;       // kolab-compliant address type: home, work or other
     QString street;
     QString pobox;
@@ -67,11 +67,11 @@ public:
     QString country;
   };
 
-  explicit Contact( const KABC::Addressee* address );
+  explicit Contact( const KContacts::Addressee* address );
   Contact( const QString& xml );
   ~Contact();
 
-  void saveTo( KABC::Addressee* address );
+  void saveTo( KContacts::Addressee* address );
 
   QString type() const { return "Contact"; }
 
@@ -201,7 +201,7 @@ public:
   QString saveXML() const;
 
 protected:
-  void setFields( const KABC::Addressee* );
+  void setFields( const KContacts::Addressee* );
 
 private:
   bool loadNameAttribute( QDomElement& element );
@@ -218,9 +218,9 @@ private:
   void loadCustomAttributes( QDomElement& element );
   void saveCustomAttributes( QDomElement& element ) const;
 
-  QImage loadPictureFromAddressee( const KABC::Picture& picture );
+  QImage loadPictureFromAddressee( const KContacts::Picture& picture );
 
-  QByteArray loadSoundFromAddressee( const KABC::Sound& sound );
+  QByteArray loadSoundFromAddressee( const KContacts::Sound& sound );
 
   QString productID() const;
 

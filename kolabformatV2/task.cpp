@@ -34,7 +34,7 @@
 #include "task.h"
 
 #include <kcalcore/todo.h>
-#include <kdebug.h>
+#include <QDebug>
 
 using namespace KolabV2;
 
@@ -269,9 +269,9 @@ bool Task::loadXML( const QDomDocument& document )
       QDomElement e = n.toElement();
       if ( !loadAttribute( e ) )
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   return true;
@@ -335,8 +335,8 @@ void Task::saveTo( const KCalCore::Todo::Ptr &task )
 
   task->setPercentComplete( percentCompleted() );
   task->setStatus( status() );
-  task->setHasStartDate( hasStartDate() );
-  task->setHasDueDate( hasDueDate() );
+  //PORT KF5 task->setHasStartDate( hasStartDate() );
+  //PORT KF5 task->setHasDueDate( hasDueDate() );
   if ( hasDueDate() )
     task->setDtDue( utcToLocal( dueDate() ) );
 

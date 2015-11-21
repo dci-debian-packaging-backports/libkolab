@@ -23,40 +23,12 @@
 #include "testutils.h"
 
 #include <QTest>
-// #include <unicode/uversion.h>
-// #include <unicode/timezone.h>
-// #include <iostream>
-#include <kdebug.h>
 #include <kcalcore/event.h>
 #include <kcalcore/icalformat.h>
-#include <ksystemtimezone.h>
-
-// void icuFoo()
-// {
-//     icu::UnicodeString s;
-//     UErrorCode error;
-// //     icu::TimeZone::getCanonicalID("GMT+01.00) Sarajevo/Warsaw/Zagreb", s, error);
-// //     icu::TimeZone::getCanonicalID(icu::UnicodeString::fromUTF8("Europe/Zurich"), s, error);
-//     icu::TimeZone::getCanonicalID(icu::UnicodeString::fromUTF8("GMT+01.00"), s, error);
-//     std::string cs;
-//     s.toUTF8String(cs);
-//     std::cout << "This is the new timezone: " << cs  << std::endl << u_errorName(error) << std::endl;
-// // 
-// // 
-// //     icu::TimeZone *tz = icu::TimeZone::createTimeZone("GMT-8:00");
-// //     icu::UnicodeString result;
-// //     tz->getDisplayName(result);
-// //     std::string stringresult;
-// //     result.toUTF8String(stringresult);
-// //     std::cout << stringresult;
-//     
-// //     icu::TimeZone *tz = icu::TimeZone::getStaticClassID();
-// 
-// }
+#include <KTimeZone>
 
 void TimezoneTest::initTestCase()
 {
-    QVERIFY2(KSystemTimeZones::isTimeZoneDaemonAvailable(), "Timezone support is required for this test. Either use libcalendaring or make sure KTimeZoned is available");
 }
 
 void TimezoneTest::testFromName()
@@ -95,7 +67,7 @@ void TimezoneTest::testFromHardcodedList()
     TimezoneConverter converter;
     QFETCH(QString, timezone);
     const QString tz = converter.normalizeTimezone(timezone);
-    kDebug() << tz;
+    qDebug() << tz;
     QVERIFY(!tz.isEmpty());
     QVERIFY(tz != timezone);
 }
@@ -108,7 +80,7 @@ void TimezoneTest::testKolabObjectWriter()
     KMime::Message::Ptr msg = Kolab::KolabObjectWriter::writeEvent(event);
     Kolab::KolabObjectReader reader(msg);
     KCalCore::Event::Ptr result = reader.getEvent();
-    kDebug() << result->dtStart().timeZone().name();
+    qDebug() << result->dtStart().timeZone().name();
     QCOMPARE(result->dtStart().timeZone().name(), KTimeZone(QLatin1String("Africa/Lagos")).name());
 }
 
@@ -130,7 +102,7 @@ void TimezoneTest::testKolabObjectWriter()
 //     QCOMPARE(Kolab::ErrorHandler::instance().error(), Kolab::ErrorHandler::Debug);
 // 
 //     KCalCore::Incidence::Ptr convertedIncidence = reader.getIncidence();
-//     kDebug() << "read incidence";
+//     qDebug() << "read incidence";
 // 
 //     //Parse ICalFile for comparison
 //     QFile icalFile( icalFileName );
@@ -159,7 +131,7 @@ void TimezoneTest::testKolabObjectWriter()
 void TimezoneTest::testFindLegacyTimezone()
 {
     const QString normalized = TimezoneConverter::normalizeTimezone("US/Pacific");
-    kDebug() << normalized;
+    qDebug() << normalized;
     QEXPECT_FAIL("", "Currently broken", Continue);
     QVERIFY(!normalized.isEmpty());
 }
@@ -167,14 +139,8 @@ void TimezoneTest::testFindLegacyTimezone()
 void TimezoneTest::testIgnoreInvalidTimezone()
 {
     const QString normalized = TimezoneConverter::normalizeTimezone("FOOOOBAR");
-    kDebug() << normalized;
+    qDebug() << normalized;
     QVERIFY(normalized.isEmpty());
-}
-
-void TimezoneTest::testTimezoneDaemonAvailable()
-{
-    //With KDE it should be available and with libcalendaring it should return true
-    QVERIFY(KSystemTimeZones::isTimeZoneDaemonAvailable());
 }
 
 void TimezoneTest::testUTCOffset()
@@ -205,7 +171,7 @@ void TimezoneTest::localTimezone()
     {
         KDateTime dt(QDate(2013, 10, 10), QTime(2, 0, 0), KTimeZone("/etc/localzone"));
         const Kolab::cDateTime result = Kolab::Conversion::fromDate(dt);
-        kDebug() << result.timezone();
+        qDebug() << result.timezone();
         QVERIFY(result.timezone().empty());
         QVERIFY(!Kolab::ErrorHandler::instance().errorOccured());
     }

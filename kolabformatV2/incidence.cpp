@@ -37,10 +37,10 @@
 #include <QList>
 
 #include <kcalcore/journal.h>
-#include <kdebug.h>
 #include <kurl.h>
 
 #include <QBitArray>
+#include <QDebug>
 
 using namespace KolabV2;
 
@@ -98,7 +98,7 @@ void Incidence::setStartDate( const KDateTime& startDate )
 {
   mStartDate = startDate;
   if ( mFloatingStatus == AllDay )
-    kDebug() <<"ERROR: Time on start date but no time on the event";
+    qDebug() <<"ERROR: Time on start date but no time on the event";
   mFloatingStatus = HasTime;
 }
 
@@ -106,7 +106,7 @@ void Incidence::setStartDate( const QDate& startDate )
 {
   mStartDate = KDateTime( startDate );
   if ( mFloatingStatus == HasTime )
-    kDebug() <<"ERROR: No time on start date but time on the event";
+    qDebug() <<"ERROR: No time on start date but time on the event";
   mFloatingStatus = AllDay;
 }
 
@@ -197,9 +197,9 @@ bool Incidence::loadAttendeeAttribute( QDomElement& element,
         attendee.delegator = e.text();
       else
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   return true;
@@ -295,7 +295,7 @@ void Incidence::saveAlarms( QDomElement& element ) const
       writeString( e, "file", a->audioFile() );
       break;
     default:
-      kWarning() << "Unhandled alarm type:" << a->type();
+      qWarning() << "Unhandled alarm type:" << a->type();
       break;
     }
   }
@@ -360,7 +360,7 @@ void Incidence::loadRecurrence( const QDomElement& element )
         mRecurrence.exclusions.append( stringToDate( e.text() ) );
       } else
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     }
   }
 }
@@ -377,7 +377,7 @@ static void loadAddressesHelper( const QDomElement& element, const KCalCore::Ala
       if ( tagName == "address" ) {
         a->addMailAddress( KCalCore::Person::fromFullName( e.text() ) );
       } else {
-        kWarning() << "Unhandled tag" << tagName;
+        qWarning() << "Unhandled tag" << tagName;
       }
     }
   }
@@ -395,7 +395,7 @@ static void loadAttachmentsHelper( const QDomElement& element, const KCalCore::A
       if ( tagName == "attachment" ) {
         a->addMailAttachment( e.text() );
       } else {
-        kWarning() << "Unhandled tag" << tagName;
+        qWarning() << "Unhandled tag" << tagName;
       }
     }
   }
@@ -437,7 +437,7 @@ static void loadAlarmHelper( const QDomElement& element, const KCalCore::Alarm::
       } else if ( tagName == "enabled" ) {
         a->setEnabled( e.text().toInt() != 0 );
       } else {
-        kWarning() << "Unhandled tag" << tagName;
+        qWarning() << "Unhandled tag" << tagName;
       }
     }
   }
@@ -465,13 +465,13 @@ void Incidence::loadAlarms( const QDomElement& element )
         } else if ( type == "audio" ) {
           a->setType( KCalCore::Alarm::Audio );
         } else {
-          kWarning() << "Unhandled alarm type:" << type;
+          qWarning() << "Unhandled alarm type:" << type;
         }
 
         loadAlarmHelper( e, a );
         mAlarms << a;
       } else {
-        kWarning() << "Unhandled tag" << tagName;
+        qWarning() << "Unhandled tag" << tagName;
       }
     }
   }
@@ -485,7 +485,7 @@ bool Incidence::loadAttribute( QDomElement& element )
     bool ok;
     int p = element.text().toInt( &ok );
     if ( !ok || p < 1 || p > 9 ) {
-      kWarning() << "Invalid \"priority\" value:" << element.text();
+      qWarning() << "Invalid \"priority\" value:" << element.text();
     } else {
       setPriority( p );
     }
@@ -493,7 +493,7 @@ bool Incidence::loadAttribute( QDomElement& element )
     bool ok;
     int p = element.text().toInt( &ok );
     if ( !ok || p < 0 || p > 9 ) {
-      kWarning() << "Invalid \"x-kcal-priority\" value:" << element.text();
+      qWarning() << "Invalid \"x-kcal-priority\" value:" << element.text();
     } else {
       if ( priority() == 0 ) {
         setPriority(p);
@@ -538,7 +538,7 @@ bool Incidence::loadAttribute( QDomElement& element )
     bool ok = KolabBase::loadAttribute( element );
     if ( !ok ) {
         // Unhandled tag - save for later storage
-        kDebug() <<"Saving unhandled tag" << element.tagName();
+        qDebug() <<"Saving unhandled tag" << element.tagName();
         Custom c;
         c.key = QByteArray( "X-KDE-KolabUnhandled-" ) + element.tagName().toLatin1();
         c.value = element.text();
@@ -957,7 +957,7 @@ void Incidence::saveTo( const KCalCore::Incidence::Ptr &incidence )
         recur->addMonthlyPos( mRecurrence.dayNumber.toInt(), daysListToBitArray( mRecurrence.days ) );
       } else if ( mRecurrence.type == "daynumber" ) {
         recur->addMonthlyDate( mRecurrence.dayNumber.toInt() );
-      } else kWarning() <<"Unhandled monthly recurrence type" << mRecurrence.type;
+      } else qWarning() <<"Unhandled monthly recurrence type" << mRecurrence.type;
     } else if ( mRecurrence.cycle == "yearly" ) {
       recur->setYearly( mRecurrence.interval );
       if ( mRecurrence.type == "monthday" ) {
@@ -972,8 +972,8 @@ void Incidence::saveTo( const KCalCore::Incidence::Ptr &incidence )
           if ( s_monthName[ i ] == mRecurrence.month )
             recur->addYearlyMonth( i+1 );
         recur->addYearlyPos( mRecurrence.dayNumber.toInt(), daysListToBitArray( mRecurrence.days ) );
-      } else kWarning() <<"Unhandled yearly recurrence type" << mRecurrence.type;
-    } else kWarning() <<"Unhandled recurrence cycle" << mRecurrence.cycle;
+      } else qWarning() <<"Unhandled yearly recurrence type" << mRecurrence.type;
+    } else qWarning() <<"Unhandled recurrence cycle" << mRecurrence.cycle;
 
     if ( mRecurrence.rangeType == "number" ) {
       recur->setDuration( mRecurrence.range.toInt() );

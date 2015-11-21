@@ -1,11 +1,10 @@
 project(Libkolab)
 
-cmake_minimum_required(VERSION 2.6.4)
+cmake_minimum_required(VERSION 2.8.9)
 
-option( BUILD_TESTS "Build the tests" TRUE )
-option( PYTHON_BINDINGS "Build bindings for python" FALSE )
-option( PHP_BINDINGS "Build bindings for php" FALSE )
-option( USE_LIBCALENDARING "Use libcalendaring" FALSE )
+option(BUILD_TESTS "Build the tests" TRUE)
+option(PYTHON_BINDINGS "Build bindings for python" FALSE)
+option(PHP_BINDINGS "Build bindings for php" FALSE)
 
 set(Libkolab_MODULE_DIR ${Libkolab_SOURCE_DIR}/cmake/modules)
 set(CMAKE_MODULE_PATH ${Libkolab_MODULE_DIR})
@@ -30,19 +29,19 @@ endif()
 # 0.1.0 (first release)
 # 0.1.1 (patch release for 0.1.0)
 # 0.2 (0.2 development version towards 0.2.0)
-set(Libkolab_VERSION_MAJOR 0)
-set(Libkolab_VERSION_MINOR 6)
+set(Libkolab_VERSION_MAJOR 1)
+set(Libkolab_VERSION_MINOR 0)
 # Enable the full x.y.z version only for release versions
 set(Libkolab_VERSION_PATCH 0)
-set(Libkolab_VERSION ${Libkolab_VERSION_MAJOR}.${Libkolab_VERSION_MINOR}.${Libkolab_VERSION_PATCH} )
-#set(Libkolab_VERSION ${Libkolab_VERSION_MAJOR}.${Libkolab_VERSION_MINOR} )
+#set(Libkolab_VERSION ${Libkolab_VERSION_MAJOR}.${Libkolab_VERSION_MINOR}.${Libkolab_VERSION_PATCH})
+set(Libkolab_VERSION ${Libkolab_VERSION_MAJOR}.${Libkolab_VERSION_MINOR})
 set(Libkolab_VERSION_STRING ${CMAKE_PROJECT_NAME}-${Libkolab_VERSION})
 
 # set up install directories.
 set(LIB_INSTALL_DIR lib${LIB_SUFFIX} CACHE STRING "The directories where to install libraries to")
 set(INCLUDE_INSTALL_DIR include CACHE STRING "The directory where to install headers to")
 set(INCLUDE_INSTALL_DIR ${INCLUDE_INSTALL_DIR}/kolab)
-set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/Libkolab )
+set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/Libkolab)
 
 # Make relative paths absolute (needed later on)
 foreach(p LIB INCLUDE CMAKECONFIG)
@@ -54,60 +53,55 @@ endforeach()
 
 include(MacroLogFeature)
 
+find_package(Qt5Core REQUIRED)
+
+
 # Do the building
 find_package(Libkolabxml 1.1 REQUIRED)
 macro_log_feature(Libkolabxml_FOUND "Libkolabxml" "Kolab XML Format 3 serializing library" "http://git.kolab.org/libkolabxml/" TRUE "1.0" "Required for reading/writing Kolab XML Objects")
 
-find_package(Qt4 4.6.0 REQUIRED)
+set(QT_REQUIRED_VERSION "5.2.0")
 
-if (USE_LIBCALENDARING)
-    find_package(Libcalendaring)
-    macro_log_feature(LIBCALENDARING_FOUND "Libcalendaring" "KDE Calendaring-Dependencies Library" "http://git.kolab.org/libcalendaring/" TRUE "" "Required if KDE libraries are not available.")
-else()
-    find_package(KDE4 4.8 REQUIRED)
-    find_package(KdepimLibs 4.8 REQUIRED)
+if (Qt5_POSITION_INDEPENDENT_CODE)
+    #Requires cmake 2.8.9 (same as -fPIC on gcc)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
+
+set(KDEPIMLIBS_LIB_VERSION "4.71.0")
+find_package(KF5Akonadi ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
+find_package(KF5Contacts ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
+find_package(KF5CalendarCore ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
+find_package(KF5CalendarUtils ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
+find_package(KF5Mime ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
+find_package(KF5AkonadiNotes ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
 
 find_package(SWIG)
 
 #Show summary of found libraries
 macro_display_feature_log()
 
-# add_definitions( -DKDEPIMLIBS_VERSION=((${KdepimLibs_VERSION_MAJOR}<<16)|(${KdepimLibs_VERSION_MINOR}<<8)|(${KDEPIMLIBS_VERSION_PATCH})) )
-add_definitions( -DKDEPIMLIBS_VERSION_MAJOR=${KdepimLibs_VERSION_MAJOR} )
-add_definitions( -DKDEPIMLIBS_VERSION_MINOR=${KdepimLibs_VERSION_MINOR} )
-add_definitions( -DKDEPIMLIBS_VERSION_PATCH=${KdepimLibs_VERSION_PATCH} )
+# add_definitions(-DKDEPIMLIBS_VERSION=((${KdepimLibs_VERSION_MAJOR}<<16)|(${KdepimLibs_VERSION_MINOR}<<8)|(${KDEPIMLIBS_VERSION_PATCH})))
+add_definitions(-DKDEPIMLIBS_VERSION_MAJOR=${KdepimLibs_VERSION_MAJOR})
+add_definitions(-DKDEPIMLIBS_VERSION_MINOR=${KdepimLibs_VERSION_MINOR})
+add_definitions(-DKDEPIMLIBS_VERSION_PATCH=${KdepimLibs_VERSION_PATCH})
 
-if("${KdepimLibs_VERSION}" VERSION_GREATER "4.8.40" OR USE_LIBCALENDARING)
-    add_definitions(-DKDEPIMLIBS_VERSION_DEVEL)
-endif()
-
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor -Wno-long-long -ansi -Wundef -Wcast-align -Wchar-subscripts -Wall -W -Wpointer-arith -Wformat-security -fno-exceptions -DQT_NO_EXCEPTIONS -fno-common -Woverloaded-virtual -fno-threadsafe-statics -fvisibility=hidden -Werror=return-type -fvisibility-inlines-hidden -fexceptions -UQT_NO_EXCEPTIONS -fPIC -g" )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor -Wno-long-long -ansi -Wundef -Wcast-align -Wchar-subscripts -Wall -W -Wpointer-arith -Wformat-security -fno-exceptions -DQT_NO_EXCEPTIONS -fno-common -Woverloaded-virtual -fno-threadsafe-statics -fvisibility=hidden -Werror=return-type -fvisibility-inlines-hidden -fexceptions -UQT_NO_EXCEPTIONS -fPIC -g -std=c++11")
 # message("${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DQT_NO_DEBUG")
 
-if (USE_LIBCALENDARING)
-    set( KDE_INCLUDES ${Libcalendaring_INCLUDE_DIRS} )
-    set( KDE_LIBRARIES ${Libcalendaring_LIBRARIES} )
-    message("${Libcalendaring_INCLUDE_DIRS} ${Libcalendaring_LIBRARIES}")
-else()
-    set( KDE_INCLUDES ${KDEPIMLIBS_INCLUDE_DIRS} ${KDE4_INCLUDES} )
-    set( KDE_LIBRARIES
-        ${KDEPIMLIBS_KCALCORE_LIBS}
-        ${KDEPIMLIBS_KABC_LIBS}
-        ${KDEPIMLIBS_KMIME_LIBS}
-        ${KDEPIMLIBS_AKONADI_LIBS}
-        ${KDEPIMLIBS_AKONADI_NOTES_LIBS}
-        ${KDEPIMLIBS_KCALUTILS_LIBS}
-        ${KDEPIMLIBS_KPIMUTILS_LIBS}
-        ${KDE4_KDECORE_LIBRARY}
-        ${KDE4_KIO_LIBRARY}
-        )
-endif()
+set(KDE_INCLUDES ${KDEPIMLIBS_INCLUDE_DIRS} ${KDE4_INCLUDES})
+set(KDE_LIBRARIES
+    KF5::CalendarCore
+    KF5::CalendarUtils
+    KF5::Contacts
+    KF5::Mime
+    KF5::AkonadiCore
+    KF5::AkonadiNotes
+)
 
 find_package(Boost REQUIRED)
 
-include_directories(    
+include_directories(
     ${QT_INCLUDES}
     ${KDE_INCLUDES}
     ${CMAKE_BINARY_DIR}
@@ -119,17 +113,6 @@ include_directories(
 
 configure_file(libkolab-version.h.cmake "${CMAKE_BINARY_DIR}/libkolab-version.h" @ONLY)
 
-set(CMAKE_REQUIRED_FLAGS ${CMAKE_CXX_FLAGS})
-set(CMAKE_REQUIRED_INCLUDES "/opt/devel/kolab/include/")
-# include(CheckIncludeFileCXX)
-# check_include_file_cxx(akonadi/tag.h HAVE_TAG_H)
-#check_include_file_cxx doesn't work for some reason, so we use find_path instead.
-#we have to make sure that we only search in KDE_INCLUDES though, to not accidentally include a system akonadi/tag.h
-#when we're searching for one in libcalendaring.
-find_path(HAVE_TAG_H akonadi/tag.h PATHS ${KDE_INCLUDES} NO_DEFAULT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH)
-find_path(HAVE_RELATION_H akonadi/relation.h PATHS ${KDE_INCLUDES} NO_DEFAULT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libkolab_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/libkolab_config.h)
-
 add_subdirectory(kolabformatV2)
 add_subdirectory(conversion)
 add_subdirectory(calendaring)
@@ -137,8 +120,8 @@ add_subdirectory(icalendar)
 add_subdirectory(freebusy)
 add_subdirectory(utils)
 
-QT4_WRAP_CPP(CALENDARING_MOC calendaring/event.h)
-# QT4_WRAP_CPP(CONVERSION_MOC conversion/qtevent.h conversion/qtduration.h)
+QT5_WRAP_CPP(CALENDARING_MOC calendaring/event.h)
+# QT5_WRAP_CPP(CONVERSION_MOC conversion/qtevent.h conversion/qtduration.h)
 
 set(KOLAB_SRCS
     kolabformat/kolabobject.cpp
@@ -159,25 +142,28 @@ set(KOLAB_SRCS
 
 set(KOLAB_LINK_LIBRARIES
     ${Libkolabxml_LIBRARIES}
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTXML_LIBRARY}
-    ${QT_QTGUI_LIBRARY}
     ${KDE_LIBRARIES}
+    Qt5::Core
+    Qt5::Xml
+    Qt5::Gui
+    Qt5::Widgets
 )
+
 if(BUILD_TESTS)
+    find_package(Qt5Test REQUIRED)
     #for tests only
     enable_testing()
     add_library(kolab_static STATIC ${KOLAB_SRCS})
-    target_link_libraries(kolab_static ${KOLAB_LINK_LIBRARIES})
+    target_link_libraries(kolab_static ${KOLAB_LINK_LIBRARIES} Qt5::Test)
     add_subdirectory(tests)
 endif(BUILD_TESTS)
 
 add_library(kolab SHARED ${KOLAB_SRCS})
 target_link_libraries(kolab ${KOLAB_LINK_LIBRARIES})
 set_target_properties(kolab PROPERTIES VERSION ${Libkolab_VERSION}
-                                     SOVERSION ${Libkolab_VERSION_MAJOR} )
+                                     SOVERSION ${Libkolab_VERSION_MAJOR})
 
-install(TARGETS kolab EXPORT LibkolabExport 
+install(TARGETS kolab EXPORT LibkolabExport
     RUNTIME DESTINATION ${BIN_INSTALL_DIR}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
@@ -191,7 +177,6 @@ install(FILES
     kolabformat/errorhandler.h
     kolabformat/xmlobject.h
     kolabformat/mimeobject.h
-    ${CMAKE_CURRENT_BINARY_DIR}/libkolab_config.h
     conversion/kcalconversion.h
     conversion/kabcconversion.h
     conversion/commonconversion.h
@@ -204,13 +189,13 @@ file(RELATIVE_PATH REL_INCLUDE_DIR "${CMAKECONFIG_INSTALL_DIR}" "${INCLUDE_INSTA
 #Assemble the full relative path. This will be used in the LibkolabConfig.cmake, which will be installed in CMAKECONFIG_INSTALL_DIR
 set(CONF_INCLUDE_DIRS "\${Libkolab_CMAKE_DIR}/${REL_INCLUDE_DIR}")
 
-install(EXPORT LibkolabExport DESTINATION ${CMAKECONFIG_INSTALL_DIR} FILE LibkolabTargets.cmake )
+install(EXPORT LibkolabExport DESTINATION ${CMAKECONFIG_INSTALL_DIR} FILE LibkolabTargets.cmake)
 
-configure_file(${Libkolab_MODULE_DIR}/LibkolabConfig.cmake.in ${Libkolab_BINARY_DIR}/LibkolabConfig.cmake @ONLY )
-configure_file(${Libkolab_MODULE_DIR}/LibkolabConfigVersion.cmake.in ${Libkolab_BINARY_DIR}/LibkolabConfigVersion.cmake @ONLY )
+configure_file(${Libkolab_MODULE_DIR}/LibkolabConfig.cmake.in ${Libkolab_BINARY_DIR}/LibkolabConfig.cmake @ONLY)
+configure_file(${Libkolab_MODULE_DIR}/LibkolabConfigVersion.cmake.in ${Libkolab_BINARY_DIR}/LibkolabConfigVersion.cmake @ONLY)
 # Install these two files into the same directory as the generated exports-file.
 install(FILES ${Libkolab_BINARY_DIR}/LibkolabConfig.cmake ${Libkolab_BINARY_DIR}/LibkolabConfigVersion.cmake
-        DESTINATION ${CMAKECONFIG_INSTALL_DIR} )
+        DESTINATION ${CMAKECONFIG_INSTALL_DIR})
 
 
 include(SWIGUtils)
