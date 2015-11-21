@@ -5,9 +5,11 @@ Description: Disable rpath setting by cmake
 Author: Paul Klos <kolab@klos2day.nl>
 Last-Update: 2013-08-12
 
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -10,6 +10,8 @@
+Index: libkolab/CMakeLists.txt
+===================================================================
+--- libkolab.orig/CMakeLists.txt	2015-11-20 21:17:53.297766186 +0100
++++ libkolab/CMakeLists.txt	2015-11-20 21:17:53.293766163 +0100
+@@ -9,6 +9,8 @@
  set(Libkolab_MODULE_DIR ${Libkolab_SOURCE_DIR}/cmake/modules)
  set(CMAKE_MODULE_PATH ${Libkolab_MODULE_DIR})
  
