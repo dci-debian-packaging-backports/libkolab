@@ -25,7 +25,7 @@ Homepage: http://git.kolab.org/libkolab
 Vcs-Git: git://anonscm.debian.org/pkg-kolab/libkolab.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-kolab/libkolab.git
 
-Package: libkolab0v5
+Package: libkolab1
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Maps KDE containers to Kolab formats
@@ -46,7 +46,7 @@ Description: Maps KDE containers to Kolab formats
 
 Package: php-kolab
 Architecture: any
-Depends: libkolab0v5 (= ${binary:Version}),
+Depends: libkolab1 (= ${binary:Version}),
          php-kolabformat,
          ucf,
          ${misc:Depends},
@@ -62,7 +62,7 @@ Description: PHP bindings for Kolab Library
 Package: python-kolab
 Architecture: any
 Section: python
-Depends: libkolab0v5 (= ${binary:Version}),
+Depends: libkolab1 (= ${binary:Version}),
          ${misc:Depends},
          ${python:Depends},
          ${shlibs:Depends}
@@ -77,7 +77,7 @@ Package: libkolab-dev
 Section: libdevel
 Architecture: any
 Depends: kdepimlibs5-dev,
-         libkolab0v5 (= ${binary:Version}),
+         libkolab1 (= ${binary:Version}),
          libkolabxml-dev (>= 1.1.1),
          libqt4-dev,
          ${misc:Depends}
