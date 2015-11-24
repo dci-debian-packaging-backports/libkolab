@@ -41,8 +41,8 @@ std::string XMLObject::getSerializedUID() const
 {
     return mWrittenUID;
 }
-    
-std::vector< std::string > XMLObject::getAttachments() const
+
+std::vector<std::string> XMLObject::getAttachments() const
 {
     return mAttachments;
 }
@@ -66,6 +66,7 @@ std::string XMLObject::writeEvent(const Event &event, Version version, const std
     }
     const std::string result = Kolab::writeEvent(event, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 
@@ -84,7 +85,9 @@ Event XMLObject::readEvent(const std::string& s, Version version)
         }
         return Conversion::fromKCalCore(*event);
     }
-    return Kolab::readEvent(s, false);
+    const Kolab::Event event = Kolab::readEvent(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return event;
 }
 
 std::string XMLObject::writeTodo(const Todo &event, Version version, const std::string& productId)
@@ -106,6 +109,7 @@ std::string XMLObject::writeTodo(const Todo &event, Version version, const std::
     }
     const std::string result = Kolab::writeTodo(event, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 
@@ -124,7 +128,9 @@ Todo XMLObject::readTodo(const std::string& s, Version version)
         }
         return Conversion::fromKCalCore(*event);
     }
-    return Kolab::readTodo(s, false);
+    const Kolab::Todo todo = Kolab::readTodo(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return todo;
 }
 
 std::string XMLObject::writeJournal(const Journal &event, Version version, const std::string& productId)
@@ -164,7 +170,9 @@ Journal XMLObject::readJournal(const std::string& s, Version version)
         }
         return Conversion::fromKCalCore(*event);
     }
-    return Kolab::readJournal(s, false);
+    const Kolab::Journal journal = Kolab::readJournal(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return journal;
 }
 
 std::string XMLObject::writeFreebusy(const Freebusy &event, Version version, const std::string& productId)
@@ -210,13 +218,15 @@ Contact XMLObject::readContact(const std::string& s, Version version)
         QString pictureAttachmentName;
         QString logoAttachmentName;
         QString soundAttachmentName;
-        const KABC::Addressee addressee = addresseeFromKolab(xmlData, pictureAttachmentName, logoAttachmentName, soundAttachmentName);
+        const KContacts::Addressee addressee = addresseeFromKolab(xmlData, pictureAttachmentName, logoAttachmentName, soundAttachmentName);
         mPictureAttachmentName = Conversion::toStdString(pictureAttachmentName);
         mLogoAttachmentName = Conversion::toStdString(logoAttachmentName);
         mSoundAttachmentName = Conversion::toStdString(soundAttachmentName);
         return Conversion::fromKABC(addressee);
     }
-    return Kolab::readContact(s, false);
+    const Kolab::Contact contact = Kolab::readContact(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return contact;
 }
 
 std::string XMLObject::writeContact(const Contact &contact, Version version, const std::string& productId)
@@ -224,7 +234,7 @@ std::string XMLObject::writeContact(const Contact &contact, Version version, con
     mWrittenUID.clear();
     if (version == KolabV2) {
         //FIXME attachment names are hardcoded for now
-        KABC::Addressee addressee = Conversion::toKABC(contact);
+        KContacts::Addressee addressee = Conversion::toKABC(contact);
         if (addressee.uid().isEmpty()) {
             addressee.setUid(createUuid());
         }
@@ -234,6 +244,7 @@ std::string XMLObject::writeContact(const Contact &contact, Version version, con
     }
     const std::string result = Kolab::writeContact(contact, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 
@@ -241,17 +252,19 @@ DistList XMLObject::readDistlist(const std::string& s, Version version)
 {
     if (version == KolabV2) {        
         const QByteArray xmlData(s.c_str(), s.size());
-        const KABC::ContactGroup contactGroup = contactGroupFromKolab(xmlData);
+        const KContacts::ContactGroup contactGroup = contactGroupFromKolab(xmlData);
         return Conversion::fromKABC(contactGroup);
     }
-    return Kolab::readDistlist(s, false);
+    const Kolab::DistList distlist = Kolab::readDistlist(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return distlist;
 }
 
 std::string XMLObject::writeDistlist(const DistList &distlist, Version version, const std::string& productId)
 {
     mWrittenUID.clear();
     if (version == KolabV2) {
-        KABC::ContactGroup contactGroup = Conversion::toKABC(distlist);
+        KContacts::ContactGroup contactGroup = Conversion::toKABC(distlist);
         if (contactGroup.id().isEmpty()) {
             contactGroup.setId(createUuid());
         }
@@ -261,6 +274,7 @@ std::string XMLObject::writeDistlist(const DistList &distlist, Version version, 
     }
     const std::string result = Kolab::writeDistlist(distlist, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 
@@ -274,7 +288,9 @@ Note XMLObject::readNote(const std::string& s, Version version)
         }
         return Conversion::fromNote(msg);
     }
-    return Kolab::readNote(s, false);
+    const Kolab::Note note = Kolab::readNote(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return note;
 }
 
 std::string XMLObject::writeNote(const Note &note, Version version, const std::string& productId)
@@ -292,6 +308,7 @@ std::string XMLObject::writeNote(const Note &note, Version version, const std::s
     }
     const std::string result = Kolab::writeNote(note, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 
@@ -312,7 +329,9 @@ Configuration XMLObject::readConfiguration(const std::string& s, Version version
         dictionary.setEntries(entries);
         return Configuration(dictionary);
     }
-    return Kolab::readConfiguration(s, false);
+    const Kolab::Configuration configuration = Kolab::readConfiguration(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return configuration;
 }
 
 std::string XMLObject::writeConfiguration(const Configuration &configuration, Version version, const std::string& productId)
@@ -324,6 +343,7 @@ std::string XMLObject::writeConfiguration(const Configuration &configuration, Ve
     }
     const std::string result = Kolab::writeConfiguration(configuration, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 
@@ -333,7 +353,9 @@ File XMLObject::readFile(const std::string& s, Version version)
         Critical() << "only v3 implementation available";
         return File();
     }
-    return Kolab::readFile(s, false);
+    const Kolab::File file = Kolab::readFile(s, false);
+    ErrorHandler::handleLibkolabxmlErrors();
+    return file;
 }
 
 std::string XMLObject::writeFile(const File &file, Version version, const std::string& productId)
@@ -345,6 +367,7 @@ std::string XMLObject::writeFile(const File &file, Version version, const std::s
     }
     const std::string result = Kolab::writeFile(file, productId);
     mWrittenUID = Kolab::getSerializedUID();
+    ErrorHandler::handleLibkolabxmlErrors();
     return result;
 }
 

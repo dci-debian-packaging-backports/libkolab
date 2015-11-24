@@ -29,8 +29,8 @@
 #include <kcalcore/icalformat.h>
 #include <kmime/kmime_message.h>
 // #include <klocalizedstring.h>
-#include <kdebug.h>
 #include <iostream>
+#include <QDebug>
 
 namespace Kolab {
 
@@ -92,7 +92,7 @@ std::string ITipHandler::toITip(const Event &event, ITipHandler::ITipMethod meth
     if (m == KCalCore::iTIPNoMethod) {
         return std::string();
     }
-//     kDebug() << event.start().
+//     qDebug() << event.start().
 /* TODO
  * DTSTAMP is created
  * CREATED is current timestamp

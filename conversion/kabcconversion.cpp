@@ -18,7 +18,6 @@
 #include "kabcconversion.h"
 
 #include "commonconversion.h"
-#include <kdebug.h>
 #include <qbuffer.h>
 #include <qimagereader.h>
 #include "kolabformat/errorhandler.h"
@@ -188,41 +187,41 @@ namespace Kolab {
 int fromAddressType(int kabcType, bool &pref)
 {
     int type = 0;
-    if (kabcType & KABC::Address::Dom) {
+    if (kabcType & KContacts::Address::Dom) {
         Warning() << "domestic address is not supported";
     } 
-    if (kabcType & KABC::Address::Intl) {
+    if (kabcType & KContacts::Address::Intl) {
         Warning() << "international address is not supported";
     } 
-    if (kabcType & KABC::Address::Pref) {
+    if (kabcType & KContacts::Address::Pref) {
         pref = true;
     } 
-    if (kabcType & KABC::Address::Postal) {
+    if (kabcType & KContacts::Address::Postal) {
         Warning() << "postal address is not supported";
     } 
-    if (kabcType & KABC::Address::Parcel) {
+    if (kabcType & KContacts::Address::Parcel) {
         Warning() << "parcel is not supported";
     } 
-    if (kabcType & KABC::Address::Home) {
+    if (kabcType & KContacts::Address::Home) {
         type |= Kolab::Address::Home;
     } 
-    if (kabcType & KABC::Address::Work) {
+    if (kabcType & KContacts::Address::Work) {
         type |= Kolab::Address::Work;
     } 
     return type;
 }
 
-KABC::Address::Type toAddressType(int types, bool pref)
+KContacts::Address::Type toAddressType(int types, bool pref)
 {
-    KABC::Address::Type type = 0;
+    KContacts::Address::Type type = 0;
     if (pref) {
-        type |= KABC::Address::Pref;
+        type |= KContacts::Address::Pref;
     } 
     if (types & Kolab::Address::Home) {
-        type |= KABC::Address::Home;
+        type |= KContacts::Address::Home;
     } 
     if (types & Kolab::Address::Work) {
-        type |= KABC::Address::Work;
+        type |= KContacts::Address::Work;
     } 
     return type;
 }
@@ -230,91 +229,91 @@ KABC::Address::Type toAddressType(int types, bool pref)
 int fromPhoneType(int kabcType, bool &pref)
 {
     int type = 0;
-    if (kabcType & KABC::PhoneNumber::Home) {
+    if (kabcType & KContacts::PhoneNumber::Home) {
         type |= Kolab::Telephone::Home;
     } 
-    if (kabcType & KABC::PhoneNumber::Work) {
+    if (kabcType & KContacts::PhoneNumber::Work) {
         type |= Kolab::Telephone::Work;
     } 
-    if (kabcType & KABC::PhoneNumber::Msg) {
+    if (kabcType & KContacts::PhoneNumber::Msg) {
         type |= Kolab::Telephone::Text;
     } 
-    if (kabcType & KABC::PhoneNumber::Pref) {
+    if (kabcType & KContacts::PhoneNumber::Pref) {
         pref = true;
     } 
-    if (kabcType & KABC::PhoneNumber::Voice) {
+    if (kabcType & KContacts::PhoneNumber::Voice) {
         type |= Kolab::Telephone::Voice;
     } 
-    if (kabcType & KABC::PhoneNumber::Fax) {
+    if (kabcType & KContacts::PhoneNumber::Fax) {
         type |= Kolab::Telephone::Fax;
     } 
-    if (kabcType & KABC::PhoneNumber::Cell) {
+    if (kabcType & KContacts::PhoneNumber::Cell) {
         type |= Kolab::Telephone::Cell;
     } 
-    if (kabcType & KABC::PhoneNumber::Video) {
+    if (kabcType & KContacts::PhoneNumber::Video) {
         type |= Kolab::Telephone::Video;
     } 
-    if (kabcType & KABC::PhoneNumber::Bbs) {
+    if (kabcType & KContacts::PhoneNumber::Bbs) {
         Warning() << "mailbox number is not supported";
     } 
-    if (kabcType & KABC::PhoneNumber::Modem) {
+    if (kabcType & KContacts::PhoneNumber::Modem) {
         Warning() << "modem is not supported";
     } 
-    if (kabcType & KABC::PhoneNumber::Car) {
+    if (kabcType & KContacts::PhoneNumber::Car) {
         type |= Kolab::Telephone::Car;
     } 
-    if (kabcType & KABC::PhoneNumber::Isdn) {
+    if (kabcType & KContacts::PhoneNumber::Isdn) {
         Warning() << "isdn number is not supported";
     } 
-    if (kabcType & KABC::PhoneNumber::Pcs) {
+    if (kabcType & KContacts::PhoneNumber::Pcs) {
         type |= Kolab::Telephone::Text;
     } 
-    if (kabcType & KABC::PhoneNumber::Pager) {
+    if (kabcType & KContacts::PhoneNumber::Pager) {
         type |= Kolab::Telephone::Pager;
     }
     return type;
 }
 
-KABC::PhoneNumber::Type toPhoneType(int types, bool pref)
+KContacts::PhoneNumber::Type toPhoneType(int types, bool pref)
 {
-    KABC::PhoneNumber::Type type = 0;
+    KContacts::PhoneNumber::Type type = 0;
     if (types & Kolab::Telephone::Home) {
-        type |= KABC::PhoneNumber::Home;
+        type |= KContacts::PhoneNumber::Home;
     } 
     if (types & Kolab::Telephone::Work) {
-        type |= KABC::PhoneNumber::Work;
+        type |= KContacts::PhoneNumber::Work;
     } 
     if (types & Kolab::Telephone::Text) {
-        type |= KABC::PhoneNumber::Msg;
+        type |= KContacts::PhoneNumber::Msg;
     } 
     if (pref) {
-        type |= KABC::PhoneNumber::Pref;
+        type |= KContacts::PhoneNumber::Pref;
     } 
     if (types & Kolab::Telephone::Voice) {
-        type |= KABC::PhoneNumber::Voice;
+        type |= KContacts::PhoneNumber::Voice;
     } 
     if (types & Kolab::Telephone::Fax) {
-        type |= KABC::PhoneNumber::Fax;
+        type |= KContacts::PhoneNumber::Fax;
     } 
     if (types & Kolab::Telephone::Cell) {
-        type |= KABC::PhoneNumber::Cell;
+        type |= KContacts::PhoneNumber::Cell;
     } 
     if (types & Kolab::Telephone::Video) {
-        type |= KABC::PhoneNumber::Video;
+        type |= KContacts::PhoneNumber::Video;
     } 
     if (types & Kolab::Telephone::Car) {
-        type |= KABC::PhoneNumber::Car;
+        type |= KContacts::PhoneNumber::Car;
     } 
     if (types & Kolab::Telephone::Text) {
-        type |= KABC::PhoneNumber::Pcs;
+        type |= KContacts::PhoneNumber::Pcs;
     } 
     if (types & Kolab::Telephone::Pager) {
-        type |= KABC::PhoneNumber::Pager;
+        type |= KContacts::PhoneNumber::Pager;
     }
     return type;
 }
 
-std::string fromPicture(const KABC::Picture &pic, std::string &mimetype)
+std::string fromPicture(const KContacts::Picture &pic, std::string &mimetype)
 {    
     QByteArray input;
     QBuffer buffer( &input );
@@ -328,7 +327,7 @@ std::string fromPicture(const KABC::Picture &pic, std::string &mimetype)
         }
     } else if ( !pic.url().isEmpty() ) {
         QString tmpFile;
-        kWarning() << "external pictures are currently not supported";
+        qWarning() << "external pictures are currently not supported";
         //FIXME add kio support to libcalendaring or use libcurl
 //         if ( KIO::NetAccess::download( pic.url(), tmpFile, 0 /*no widget known*/ ) ) {
 //             img.load( tmpFile );
@@ -355,7 +354,7 @@ std::string fromPicture(const KABC::Picture &pic, std::string &mimetype)
     return std::string(input.data(), input.size());
 }
 
-KABC::Picture toPicture(const std::string &data, const std::string &mimetype) {
+KContacts::Picture toPicture(const std::string &data, const std::string &mimetype) {
     QImage img;
     bool ret = false;
     QByteArray type(mimetype.data(), mimetype.size());
@@ -367,13 +366,13 @@ KABC::Picture toPicture(const std::string &data, const std::string &mimetype) {
     }
     if (!ret) {
         Warning() << "failed to load picture";
-        return KABC::Picture();
+        return KContacts::Picture();
     }
     
-    KABC::Picture logo(img);
+    KContacts::Picture logo(img);
     if (logo.isEmpty()) {
         Warning() << "failed to read picture";
-        return KABC::Picture();
+        return KContacts::Picture();
     }
     return logo;
 }
@@ -420,9 +419,9 @@ static int emailTypesFromStringlist(const QString &types) {
     return emailTypes;
 }
 
-KABC::Addressee toKABC(const Kolab::Contact &contact)
+KContacts::Addressee toKABC(const Kolab::Contact &contact)
 {
-  KABC::Addressee addressee;
+  KContacts::Addressee addressee;
   addressee.setUid(fromStdString(contact.uid()));
   addressee.setCategories(toStringList(contact.categories()));
   //addressee.setName(fromStdString(contact.name()));//This one is only for compatiblity (and results in a non-existing name property)
@@ -447,7 +446,7 @@ KABC::Addressee toKABC(const Kolab::Contact &contact)
   
   addressee.setNote(fromStdString(contact.note()));
   
-  addressee.setSecrecy(KABC::Secrecy::Public); //We don't have any privacy setting in xCard
+  addressee.setSecrecy(KContacts::Secrecy::Public); //We don't have any privacy setting in xCard
   
   
   QString preferredEmail;
@@ -489,7 +488,7 @@ KABC::Addressee toKABC(const Kolab::Contact &contact)
       addressee.setTitle(fromStdString(contact.titles().at(0))); //TODO support multiple
   }
   if (!contact.urls().empty()) {
-      addressee.setUrl(fromStdString(contact.urls().at(0).url())); //TODO support multiple
+      addressee.setUrl(QUrl(fromStdString(contact.urls().at(0).url()))); //TODO support multiple
       foreach(const Kolab::Url &u, contact.urls()) {
           if (u.type() == Kolab::Url::Blog) {
               addressee.insertCustom("KADDRESSBOOK", "BlogFeed", fromStdString(u.url()));
@@ -550,7 +549,7 @@ KABC::Addressee toKABC(const Kolab::Contact &contact)
           if (index == contact.telephonesPreferredIndex()) {
               pref = true;
           }
-          KABC::PhoneNumber number(fromStdString(tel.number()), toPhoneType(tel.types(), pref));
+          KContacts::PhoneNumber number(fromStdString(tel.number()), toPhoneType(tel.types(), pref));
           index++;
           addressee.insertPhoneNumber(number);
       }
@@ -563,7 +562,7 @@ KABC::Addressee toKABC(const Kolab::Contact &contact)
           if (index == contact.addressPreferredIndex()) {
               pref = true;
           }
-          KABC::Address adr(toAddressType(a.types(), pref));          
+          KContacts::Address adr(toAddressType(a.types(), pref));          
           adr.setLabel(fromStdString(a.label()));
           adr.setStreet(fromStdString(a.street()));
           adr.setLocality(fromStdString(a.locality()));
@@ -602,7 +601,7 @@ KABC::Addressee toKABC(const Kolab::Contact &contact)
   return addressee;
 }
 
-Kolab::Contact fromKABC(const KABC::Addressee &addressee)
+Kolab::Contact fromKABC(const KContacts::Addressee &addressee)
 {
     int prefNum = -1;
     int prefCounter = -1;
@@ -677,7 +676,7 @@ Kolab::Contact fromKABC(const KABC::Addressee &addressee)
     std::vector<Kolab::Address> addresses;
     prefNum = -1;
     prefCounter = -1;
-    foreach(const KABC::Address &a, addressee.addresses()) {
+    foreach(const KContacts::Address &a, addressee.addresses()) {
         Kolab::Address adr;
         bool pref = false;
         adr.setTypes(fromAddressType(a.type(), pref));
@@ -717,7 +716,7 @@ Kolab::Contact fromKABC(const KABC::Addressee &addressee)
     std::vector <Kolab::Telephone> phones;
     prefNum = -1;
     prefCounter = -1;
-    foreach (const KABC::PhoneNumber &n, addressee.phoneNumbers()) {
+    foreach (const KContacts::PhoneNumber &n, addressee.phoneNumbers()) {
         Kolab::Telephone p;
         p.setNumber(toStdString(n.number()));
         bool pref = false;
@@ -844,7 +843,7 @@ Kolab::Contact fromKABC(const KABC::Addressee &addressee)
     return c;
 }
 
-DistList fromKABC(const KABC::ContactGroup &cg)
+DistList fromKABC(const KContacts::ContactGroup &cg)
 {
     DistList dl;
     dl.setName(toStdString(cg.name()));
@@ -852,16 +851,16 @@ DistList fromKABC(const KABC::ContactGroup &cg)
     
     std::vector <Kolab::ContactReference > members;
     for (unsigned int i = 0; i < cg.dataCount(); i++) {
-        const KABC::ContactGroup::Data &data = cg.data(i);
+        const KContacts::ContactGroup::Data &data = cg.data(i);
         members.push_back(Kolab::ContactReference(Kolab::ContactReference::EmailReference, toStdString(data.email()), toStdString(data.name())));
     }
     for (unsigned int i = 0; i < cg.contactReferenceCount(); i++) {
-        const KABC::ContactGroup::ContactReference &ref = cg.contactReference(i);
+        const KContacts::ContactGroup::ContactReference &ref = cg.contactReference(i);
         members.push_back(Kolab::ContactReference(Kolab::ContactReference::UidReference, toStdString(ref.uid())));
     }
     
     if (cg.contactGroupReferenceCount() > 0) {
-        kWarning() << "Tried to save contact group references, which should have been resolved already";
+        qWarning() << "Tried to save contact group references, which should have been resolved already";
     }
     
     dl.setMembers(members);
@@ -869,17 +868,17 @@ DistList fromKABC(const KABC::ContactGroup &cg)
     return dl;
 }
 
-KABC::ContactGroup toKABC(const DistList &dl)
+KContacts::ContactGroup toKABC(const DistList &dl)
 {
-    KABC::ContactGroup cg(fromStdString(dl.name()));
+    KContacts::ContactGroup cg(fromStdString(dl.name()));
     cg.setId(fromStdString(dl.uid()));
     foreach(const Kolab::ContactReference &m, dl.members()) {
         switch (m.type()) {
             case Kolab::ContactReference::EmailReference:
-                cg.append(KABC::ContactGroup::Data(fromStdString(m.name()), fromStdString(m.email())));
+                cg.append(KContacts::ContactGroup::Data(fromStdString(m.name()), fromStdString(m.email())));
                 break;
             case Kolab::ContactReference::UidReference:
-                cg.append(KABC::ContactGroup::ContactReference(fromStdString(m.uid())));
+                cg.append(KContacts::ContactGroup::ContactReference(fromStdString(m.uid())));
                 break;
             default:
                 Error() << "invalid contact reference";
