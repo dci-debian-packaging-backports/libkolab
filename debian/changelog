@@ -5,6 +5,7 @@ libkolab (1.0.0-1) experimental; urgency=medium
   * Updated patch hunks.
   * Delete unused lintian overrides.
   * Use symbolfiles instead of shlibs.
+  * Add breaks/replaces for libkolab0v5
   
   [Harald Sitter]
   * Updated dependencies using Qt5 and KF5.
@@ -12,7 +13,7 @@ libkolab (1.0.0-1) experimental; urgency=medium
   * Import upstream commits to fix compatibility with KDE Applications 15.08
     - upstream_Fix-build-with-Qt-5.5-and-also-adjust-to-the-latest-.patch
 
- -- Sandro Knauß <bugs@sandroknauss.de>  Fri, 20 Nov 2015 21:25:21 +0100
+ -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 25 Nov 2015 00:52:31 +0100
 
 libkolab (0.6.0-2) unstable; urgency=medium
 
