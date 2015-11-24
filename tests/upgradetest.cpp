@@ -27,7 +27,7 @@
 #include "kolabformat/kolabobject.h"
 #include <conversion/commonconversion.h>
 #include <kcalcore/icalformat.h>
-#include <kcontacts/vcardconverter.h>
+#include <kabc/vcardconverter.h>
 
 void UpgradeTest::testIncidence_data()
 {
@@ -81,7 +81,7 @@ void UpgradeTest::testIncidence()
     //write KCalCore V3
     KMime::Message::Ptr v3message = Kolab::KolabObjectWriter::writeIncidence(v2result, Kolab::KolabV3);
     QVERIFY(Kolab::error() == Kolab::NoError);
-//     qDebug() << v3message->encodedContent();
+//     kDebug() << v3message->encodedContent();
     //load KCalCore V3
     Kolab::KolabObjectReader reader2;
     QCOMPARE(reader2.parseMimeMessage(v3message), type);
@@ -90,7 +90,7 @@ void UpgradeTest::testIncidence()
     normalizeIncidence(v2result);
     //We have to override the last modified time with a specific value, so we normalize the input to the same
     normalizeIncidence(v3result);
-    qDebug() <<"--------------------------------------------------------";
+    kDebug() <<"--------------------------------------------------------";
     KCalCore::ICalFormat format;
     const QString v2 = format.toString( v2result );
     const QString v3 = format.toString( v3result );
@@ -102,7 +102,7 @@ void UpgradeTest::testIncidence()
     QVERIFY(!v2.isEmpty());
     QVERIFY(!v3.isEmpty());
     QCOMPARE(v2, v3);
-    qDebug() <<"--------------------------------------------------------";
+    kDebug() <<"--------------------------------------------------------";
 
 //     if (v2result->type() == KCalCore::IncidenceBase::TypeTodo) {
 //         KCalCore::Todo::Ptr t1 = v2result.dynamicCast<KCalCore::Todo>();
@@ -157,7 +157,7 @@ void UpgradeTest::testContact()
     QCOMPARE(reader.getVersion(), Kolab::KolabV2);
     QCOMPARE(Kolab::ErrorHandler::instance().error(), Kolab::ErrorHandler::Debug);
     
-    KContacts::Addressee v2Addressee = reader.getContact();
+    KABC::Addressee v2Addressee = reader.getContact();
     QVERIFY(!v2Addressee.isEmpty());
     
     //Write
@@ -166,14 +166,14 @@ void UpgradeTest::testContact()
     //load V3
     Kolab::KolabObjectReader reader2;
     QCOMPARE(reader2.parseMimeMessage(v3message), type);
-    KContacts::Addressee v3result = reader2.getContact();
+    KABC::Addressee v3result = reader2.getContact();
     QVERIFY(!v3result.isEmpty());
     
     normalizeContact(v2Addressee);
     QVERIFY( normalizePhoneNumbers( v3result, v2Addressee ) ); // phone number ids are random
     QVERIFY( normalizeAddresses( v3result, v2Addressee ) ); // same here
     
-    KContacts::VCardConverter converter;
+    KABC::VCardConverter converter;
     if ( v2Addressee != v3result ) {
         showDiff(converter.createVCard(v2Addressee), converter.createVCard(v3result));
         QVERIFY( false );

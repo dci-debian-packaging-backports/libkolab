@@ -20,10 +20,9 @@
 #include <kolabformat/errorhandler.h>
 
 #include <iostream>
-#include <KTimeZone>
-#include <KSystemTimeZones>
+#include <ksystemtimezone.h>
+#include <kdebug.h>
 #include <QUrl>
-#include <QTimeZone>
 
 namespace Kolab {
     namespace Conversion {
@@ -36,16 +35,19 @@ KDateTime::Spec getTimeSpec(bool isUtc, const std::string& timezone)
     if (timezone.empty()) { //Floating
         return  KDateTime::Spec(KDateTime::ClockTime);
     }
+    //Timezone
 
     //Convert non-olson timezones if necessary
     const QString normalizedTz = TimezoneConverter::normalizeTimezone(QString::fromStdString(timezone));
-    if (!QTimeZone::isTimeZoneIdAvailable(normalizedTz.toLatin1())) {
+    KTimeZone tz = KSystemTimeZones::zone(normalizedTz); //Needs ktimezoned (timezone daemon running) http://api.kde.org/4.x-api/kdelibs-apidocs/kdecore/html/classKSystemTimeZones.html
+    if (!tz.isValid()) {
         Warning() << "invalid timezone: " << QString::fromStdString(timezone) << ", assuming floating time";
+        if (!KSystemTimeZones::isTimeZoneDaemonAvailable()) {
+            Error() << "ktimezoned is not available and required for timezone interpretation";
+        }
         return  KDateTime::Spec(KDateTime::ClockTime);
     }
-    //FIXME convert this to a proper KTimeZone
-    
-    return KDateTime::Spec(KSystemTimeZones::zone(normalizedTz));
+    return KDateTime::Spec(tz);
 }
 
 KDateTime toDate(const Kolab::cDateTime &dt)
@@ -144,34 +146,27 @@ QUrl toMailto(const std::string &email, const std::string &name)
 
 std::string fromMailto(const QUrl &mailtoUri, std::string &name)
 {
-    const QPair<std::string, std::string> pair = fromMailto(toStdString(mailtoUri.toString()));
-    name = pair.second;
-    return pair.first;
-}
-
-QPair<std::string, std::string> fromMailto(const std::string &mailto)
-{
-    const std::string &decoded = toStdString(QUrl::fromPercentEncoding(QByteArray(mailto.c_str())));
+    const std::string &decoded = toStdString(mailtoUri.toString());
     if (decoded.substr(0, 7).compare("mailto:")) {
-        // WARNING("no mailto address");
-        // std::cout << decoded << std::endl;
-        return qMakePair(decoded, std::string());
+        WARNING("no mailto address");
+        std::cout << decoded << std::endl;
+        return decoded;
     }
     std::size_t begin = decoded.find('<',7);
     if (begin == std::string::npos) {
         WARNING("no mailto address");
         std::cout << decoded << std::endl;
-        return qMakePair(decoded, std::string());
+        return decoded;
     }
     std::size_t end = decoded.find('>', begin);
     if (end == std::string::npos) {
         WARNING("no mailto address");
         std::cout << decoded << std::endl;
-        return qMakePair(decoded, std::string());
+        return decoded;
     }
-    const std::string name = decoded.substr(7, begin-7);
-    const std::string email = decoded.substr(begin+1, end-begin-1);
-    return qMakePair(email, name);
+    name = decoded.substr(7, begin-7);
+    const std::string &email = decoded.substr(begin+1, end-begin-1);
+    return email;
 }
 
     }

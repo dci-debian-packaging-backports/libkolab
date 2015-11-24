@@ -38,7 +38,6 @@ namespace Kolab {
 
         QUrl toMailto(const std::string &email, const std::string &name = std::string());
         std::string fromMailto(const QUrl &mailtoUri, std::string &name);
-        QPair<std::string, std::string> fromMailto(const std::string &mailto);
         
         inline std::string toStdString(const QString &s)
         {

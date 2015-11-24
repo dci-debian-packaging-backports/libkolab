@@ -21,12 +21,13 @@
 #include "imip.h"
 
 #include <kcalutils/incidenceformatter.h>
-#include <KEmailAddress>
+#include <kpimutils/email.h>
 #include <kmime/kmime_message.h>
 #include <QDebug>
-#include <QTime>
-#include <QTimeZone>
-#include <KTimeZone>
+// #include <klocalizedstring.h>
+#include <ksystemtimezone.h>
+#include <kdebug.h>
+
 /*
  * The code in here is copy paste work from kdepim/calendarsupport.
  *
@@ -52,7 +53,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
   if ( to.isEmpty() ) {
     to = from;
   }
-  qDebug() << "\nFrom:" << from
+  kDebug() << "\nFrom:" << from
            << "\nTo:" << to
            << "\nCC:" << cc
            << "\nSubject:" << subject << "\nBody: \n" << body
@@ -73,7 +74,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
   if( bccMe ) {
     message->bcc()->fromUnicodeString( from, "utf-8" ); //from==me, right?
   }
-  message->date()->setDateTime( KDateTime::currentLocalDateTime().dateTime() );
+  message->date()->setDateTime( KDateTime::currentLocalDateTime() );
   message->subject()->fromUnicodeString( subject, "utf-8" );
 
   if ( outlookConformInvitation ) {
@@ -142,7 +143,7 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
 {
   KCalCore::Attendee::List attendees = incidence->attendees();
   if ( attendees.isEmpty() ) {
-    qWarning() << "There are no attendees to e-mail";
+    kWarning() << "There are no attendees to e-mail";
     return QByteArray();
   }
 
@@ -169,10 +170,10 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
 
     // Build a nice address for this attendee including the CN.
     QString tname, temail;
-    const QString username =  KEmailAddress::quoteNameIfNecessary( a->name() );
+    const QString username = KPIMUtils::quoteNameIfNecessary( a->name() );
     // ignore the return value from extractEmailAddressAndName() because
     // it will always be false since tusername does not contain "@domain".
-    KEmailAddress::extractEmailAddressAndName( username, temail/*byref*/, tname/*byref*/ );
+    KPIMUtils::extractEmailAddressAndName( username, temail/*byref*/, tname/*byref*/ );
     tname += QLatin1String( " <" ) + email + QLatin1Char( '>' );
 
     // Optional Participants and Non-Participants are copied on the email
@@ -185,7 +186,7 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
   }
   if( toList.isEmpty() && ccList.isEmpty() ) {
     // Not really to be called a groupware meeting, eh
-    qWarning() << "There are really no attendees to e-mail";
+    kWarning() << "There are really no attendees to e-mail";
     return QByteArray();
   }
   QString to;
@@ -206,7 +207,7 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
   }
 
   const QString body =
-    KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KTimeZone(QTimeZone::systemTimeZoneId()) );
+    KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KSystemTimeZones::local() );
 
   return createMessage(/* identity, */from, to, cc, subject, body, false,
                bccMe, attachment/*, mailTransport */)->encodedContent();
@@ -230,7 +231,7 @@ QByteArray mailOrganizer( const KCalCore::IncidenceBase::Ptr &incidence,
     subject = QString( "Free Busy Message" );
   }
 
-  QString body = KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KTimeZone(QTimeZone::systemTimeZoneId()) );
+  QString body = KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KSystemTimeZones::local() );
 
   return createMessage( /*identity, */from, to, QString(), subject, body, false,
                bccMe, attachment/*, mailTransport */)->encodedContent();

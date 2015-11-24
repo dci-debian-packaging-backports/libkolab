@@ -20,18 +20,18 @@
 #include <QTest>
 
 #include "kolabformat/kolabobject.h"
+#include <kdebug.h>
 #include <kolabformat/errorhandler.h>
 
 void KolabObjectTest::preserveLatin1()
 {
     KCalCore::Event::Ptr event(new KCalCore::Event());
-    event->setDtStart(KDateTime(QDate(2014, 1, 1)));
-    const QString summary(QLatin1String("äöü%@$£é¤¼²°"));
+    QString summary(QLatin1String("äöü%@$£é¤¼²°"));
     event->setSummary(summary);
     QCOMPARE(event->summary(), summary);
     //std::cout << event->summary().toStdString() << std::endl;
     KMime::Message::Ptr msg = Kolab::KolabObjectWriter::writeEvent(event);
-//     qDebug() << msg->encodedContent();
+//     kDebug() << msg->encodedContent();
     KCalCore::Event::Ptr readEvent = Kolab::KolabObjectReader(msg).getEvent();
     QVERIFY(readEvent);
 //     std::cout << readEvent->summary().toStdString() << std::endl;
@@ -41,13 +41,12 @@ void KolabObjectTest::preserveLatin1()
 void KolabObjectTest::preserveUnicode()
 {
     KCalCore::Event::Ptr event(new KCalCore::Event());
-    event->setDtStart(KDateTime(QDate(2014, 1, 1)));
     QString summary(QString::fromUtf8("€Š�ـأبـ☺"));
     event->setSummary(summary);
     QCOMPARE(event->summary(), summary);
 //     std::cout << event->summary().toStdString() << std::endl;
     KMime::Message::Ptr msg = Kolab::KolabObjectWriter::writeEvent(event);
-//     qDebug() << msg->encodedContent();
+//     kDebug() << msg->encodedContent();
     KCalCore::Event::Ptr readEvent = Kolab::KolabObjectReader(msg).getEvent();
     QVERIFY(readEvent);
 //     std::cout << readEvent->summary().toStdString() << std::endl;
@@ -84,13 +83,12 @@ void KolabObjectTest::dontCrashWithEmptyIncidence()
 void KolabObjectTest::parseRelationMembers()
 {
     {
-        QString memberString("imap:/user/jan.aachen%40lhm.klab.cc/INBOX/20?message-id=%3Cf06aa3345a25005380b47547ad161d36%40lhm.klab.cc%3E&subject=Re%3A+test&date=Tue%2C+12+Aug+2014+20%3A42%3A59+%2B0200");
+        QString memberString("imap:///user/jan.aachen%40lhm.klab.cc/INBOX/20?message-id=%3Cf06aa3345a25005380b47547ad161d36%40lhm.klab.cc%3E&subject=Re%3A+test&date=Tue%2C+12+Aug+2014+20%3A42%3A59+%2B0200");
         Kolab::RelationMember member = Kolab::parseMemberUrl(memberString);
 
         QString result = Kolab::generateMemberUrl(member);
         qDebug() << result;
         result.replace(QLatin1String("%20"),QLatin1String("+"));
-        QEXPECT_FAIL("", "This is currently failing, probably a bug in the recent changes regarding the encoding.", Continue);
         QCOMPARE(result, memberString);
     }
 
@@ -109,7 +107,6 @@ void KolabObjectTest::parseRelationMembers()
         Kolab::RelationMember result = Kolab::parseMemberUrl(url);
         QCOMPARE(result.uid, member.uid);
         QCOMPARE(result.mailbox, member.mailbox);
-        QEXPECT_FAIL("", "This is currently failing, probably a bug in the recent changes regarding the encoding.", Continue);
         QCOMPARE(result.user, member.user);
         QCOMPARE(result.messageId, member.messageId);
         QCOMPARE(result.date, member.date);
@@ -162,9 +159,7 @@ void KolabObjectTest::parseRelationMembers()
         qDebug() << url;
         Kolab::RelationMember result = Kolab::parseMemberUrl(url);
         QCOMPARE(result.uid, member.uid);
-        QEXPECT_FAIL("", "This is currently failing, probably a bug in the recent changes regarding the encoding.", Continue);
         QCOMPARE(result.mailbox, member.mailbox);
-        QEXPECT_FAIL("", "This is currently failing, probably a bug in the recent changes regarding the encoding.", Continue);
         QCOMPARE(result.user, member.user);
         QCOMPARE(result.messageId, member.messageId);
         QCOMPARE(result.date, member.date);

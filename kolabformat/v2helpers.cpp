@@ -29,35 +29,14 @@
 #include "mime/mimeutils.h"
 #include "kolabformat/errorhandler.h"
 
-#include <kcontacts/contactgroup.h>
+#include <kabc/contactgroup.h>
 
 #include <qdom.h>
+#include <kdebug.h>
 #include <qbuffer.h>
-#include <QDebug>
 #include <akonadi/notes/noteutils.h>
 
 namespace Kolab {
-
-void getAttachments(KCalCore::Incidence::Ptr incidence, const QStringList &attachments, const KMime::Message::Ptr &mimeData)
-{
-    if (!incidence) {
-        Error() << "Invalid incidence";
-        return;
-    }
-    foreach (const QString &name, attachments) {
-        QByteArray type;
-        KMime::Content *content = Mime::findContentByName(mimeData, name, type);
-        if (!content) { // guard against malformed events with non-existent attachments
-            Warning() << "could not find attachment: "<< name.toUtf8() << type;
-            continue;
-        }
-        const QByteArray c = content->decodedContent().toBase64();
-        KCalCore::Attachment::Ptr attachment( new KCalCore::Attachment( c, QString::fromLatin1( type ) ) );
-        attachment->setLabel( name );
-        incidence->addAttachment(attachment);
-        Debug() << "ATTACHMENT NAME" << name << type;
-    }
-}
 
 static QImage getPicture(const QString &pictureAttachmentName, const KMime::Message::Ptr &data, QByteArray &type)
 {
@@ -102,13 +81,13 @@ static QImage getPicture(const QString &pictureAttachmentName, const KMime::Mess
     return image;
 }
 
-KContacts::Addressee addresseeFromKolab( const QByteArray &xmlData, const KMime::Message::Ptr &data)
+KABC::Addressee addresseeFromKolab( const QByteArray &xmlData, const KMime::Message::Ptr &data)
 {
     if (!data) {
         Critical() << "empty message";
-        return KContacts::Addressee();
+        return KABC::Addressee();
     }
-    KContacts::Addressee addressee;
+    KABC::Addressee addressee;
 //     Debug() << "xmlData " << xmlData;
     KolabV2::Contact contact(QString::fromUtf8(xmlData));
     QByteArray type;
@@ -138,9 +117,9 @@ KContacts::Addressee addresseeFromKolab( const QByteArray &xmlData, const KMime:
     return addressee;
 }
 
-KContacts::Addressee addresseeFromKolab(const QByteArray &xmlData, QString &pictureAttachmentName, QString &logoAttachmentName, QString &soundAttachmentName)
+KABC::Addressee addresseeFromKolab(const QByteArray &xmlData, QString &pictureAttachmentName, QString &logoAttachmentName, QString &soundAttachmentName)
 {
-    KContacts::Addressee addressee;
+    KABC::Addressee addressee;
     KolabV2::Contact contact(QString::fromUtf8(xmlData));
     pictureAttachmentName = contact.pictureAttachmentName();
     logoAttachmentName = contact.logoAttachmentName();
@@ -168,7 +147,7 @@ static QByteArray createPicture(const QImage &img, const QString &/*format*/, QS
 
 KMime::Message::Ptr contactToKolabFormat(const KolabV2::Contact& contact, const QString &productId)
 {
-    KMime::Message::Ptr message = Mime::createMessage( QByteArray(KOLAB_TYPE_CONTACT), false, productId.toLatin1() );
+    KMime::Message::Ptr message = Mime::createMessage( KOLAB_TYPE_CONTACT, false, productId );
     if (!message) {
         Critical() << "empty message";
         return KMime::Message::Ptr();
@@ -182,14 +161,14 @@ KMime::Message::Ptr contactToKolabFormat(const KolabV2::Contact& contact, const 
     if ( !contact.picture().isNull() ) {
         QString type;
         const QByteArray &pic = createPicture(contact.picture(), contact.pictureFormat(), type);
-        content = Mime::createAttachmentPart(QByteArray(), type.toLatin1(), /*"kolab-picture.png"*/contact.pictureAttachmentName(), pic );
+        content = Mime::createAttachmentPart(QByteArray(), type, /*"kolab-picture.png"*/contact.pictureAttachmentName(), pic );
         message->addContent(content);
     }
     
     if ( !contact.logo().isNull() ) {
         QString type;
         const QByteArray &pic = createPicture(contact.logo(), contact.logoFormat(), type);
-        content = Mime::createAttachmentPart(QByteArray(), type.toLatin1(), /*"kolab-logo.png"*/contact.logoAttachmentName(), pic );
+        content = Mime::createAttachmentPart(QByteArray(), type, /*"kolab-logo.png"*/contact.logoAttachmentName(), pic );
         message->addContent(content);
     }
     
@@ -202,10 +181,10 @@ KMime::Message::Ptr contactToKolabFormat(const KolabV2::Contact& contact, const 
     return message;
 }
 
-KContacts::ContactGroup contactGroupFromKolab(const QByteArray &xmlData)
+KABC::ContactGroup contactGroupFromKolab(const QByteArray &xmlData)
 {
-    KContacts::ContactGroup contactGroup;
-    //     qDebug() << "xmlData " << xmlData;
+    KABC::ContactGroup contactGroup;
+    //     kDebug() << "xmlData " << xmlData;
     KolabV2::DistributionList distList(QString::fromUtf8(xmlData));
     distList.saveTo(&contactGroup);
     return contactGroup;
@@ -213,7 +192,7 @@ KContacts::ContactGroup contactGroupFromKolab(const QByteArray &xmlData)
 
 KMime::Message::Ptr distListToKolabFormat(const KolabV2::DistributionList& distList, const QString &productId)
 {    
-    KMime::Message::Ptr message = Mime::createMessage( KOLAB_TYPE_DISTLIST_V2, false, productId.toLatin1() );
+    KMime::Message::Ptr message = Mime::createMessage( KOLAB_TYPE_DISTLIST_V2, false, productId );
     if (!message) {
         Critical() << "empty message";
         return KMime::Message::Ptr();
@@ -240,7 +219,7 @@ KMime::Message::Ptr noteFromKolab(const QByteArray &xmlData, const KDateTime &cr
     note.setTitle(j.summary());
     note.setText(j.body().toUtf8());
     note.setFrom("kolab@kde4");
-    note.setCreationDate(creationDate.dateTime());
+    note.setCreationDate(creationDate);
     return note.message();
 }
 

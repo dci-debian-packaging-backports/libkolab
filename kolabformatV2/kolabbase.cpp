@@ -33,12 +33,12 @@
 
 #include "kolabbase.h"
 
-#include <kcontacts/addressee.h>
-#include <kcontacts/contactgroup.h>
+#include <kabc/addressee.h>
+#include <kabc/contactgroup.h>
 #include <kcalcore/incidence.h>
 #include <kcalcore/journal.h>
-#include <QDebug>
-#include <KTimeZone>
+#include <ksystemtimezone.h>
+#include <kdebug.h>
 
 using namespace KolabV2;
 
@@ -46,7 +46,7 @@ KolabBase::KolabBase( const QString& tz )
   : mCreationDate( QDateTime::currentDateTime() ),
     mLastModified( KDateTime::currentUtcDateTime() ),
     mSensitivity( Public ),
-    mTimeZone( KTimeZone( tz ) ),
+    mTimeZone( KSystemTimeZones::zone( tz ) ),
     mHasPilotSyncId( false ),  mHasPilotSyncStatus( false )
 {
 }
@@ -91,7 +91,7 @@ void KolabBase::saveTo( const KCalCore::Incidence::Ptr &incidence ) const
   // TODO: Attachments
 }
 
-void KolabBase::setFields( const KContacts::Addressee* addressee )
+void KolabBase::setFields( const KABC::Addressee* addressee )
 {
   // An addressee does not have a creation date, so somehow we should
   // make one, if this is a new entry
@@ -102,15 +102,15 @@ void KolabBase::setFields( const KContacts::Addressee* addressee )
 
   // Set creation-time and last-modification-time
   const QString creationString = addressee->custom( "KOLAB", "CreationDate" );
-  qDebug() <<"Creation time string:" << creationString;
+  kDebug() <<"Creation time string:" << creationString;
   KDateTime creationDate;
   if ( creationString.isEmpty() ) {
     creationDate = KDateTime::currentDateTime(KDateTime::Spec( mTimeZone ) );
-    qDebug() <<"Creation date set to current time";
+    kDebug() <<"Creation date set to current time";
   }
   else {
     creationDate = stringToDateTime( creationString );
-    qDebug() <<"Creation date loaded";
+    kDebug() <<"Creation date loaded";
   }
   KDateTime modified = KDateTime( addressee->revision(), mTimeZone );
   if ( !modified.isValid() )
@@ -119,22 +119,22 @@ void KolabBase::setFields( const KContacts::Addressee* addressee )
   if ( modified < creationDate ) {
     // It's not possible that the modification date is earlier than creation
     creationDate = modified;
-    qDebug() <<"Creation date set to modification date";
+    kDebug() <<"Creation date set to modification date";
   }
   setCreationDate( creationDate );
   const QString newCreationDate = dateTimeToString( creationDate );
   if ( creationString != newCreationDate ) {
     // We modified the creation date, so store it for future reference
-    const_cast<KContacts::Addressee*>( addressee )
+    const_cast<KABC::Addressee*>( addressee )
       ->insertCustom( "KOLAB", "CreationDate", newCreationDate );
-    qDebug() <<"Creation date modified. New one:" << newCreationDate;
+    kDebug() <<"Creation date modified. New one:" << newCreationDate;
   }
 
   switch( addressee->secrecy().type() ) {
-  case KContacts::Secrecy::Private:
+  case KABC::Secrecy::Private:
     setSensitivity( Private );
     break;
-  case KContacts::Secrecy::Confidential:
+  case KABC::Secrecy::Confidential:
     setSensitivity( Confidential );
     break;
   default:
@@ -144,7 +144,7 @@ void KolabBase::setFields( const KContacts::Addressee* addressee )
   // TODO: Attachments
 }
 
-void KolabBase::saveTo( KContacts::Addressee* addressee ) const
+void KolabBase::saveTo( KABC::Addressee* addressee ) const
 {
   addressee->setUid( uid() );
   addressee->setNote( body() );
@@ -155,19 +155,19 @@ void KolabBase::saveTo( KContacts::Addressee* addressee ) const
 
   switch( sensitivity() ) {
   case Private:
-    addressee->setSecrecy( KContacts::Secrecy( KContacts::Secrecy::Private ) );
+    addressee->setSecrecy( KABC::Secrecy( KABC::Secrecy::Private ) );
     break;
   case Confidential:
-    addressee->setSecrecy( KContacts::Secrecy( KContacts::Secrecy::Confidential ) );
+    addressee->setSecrecy( KABC::Secrecy( KABC::Secrecy::Confidential ) );
     break;
   default:
-    addressee->setSecrecy( KContacts::Secrecy( KContacts::Secrecy::Public ) );
+    addressee->setSecrecy( KABC::Secrecy( KABC::Secrecy::Public ) );
     break;
   }
   // TODO: Attachments
 }
 
-void KolabBase::setFields( const KContacts::ContactGroup* contactGroup )
+void KolabBase::setFields( const KABC::ContactGroup* contactGroup )
 {
   // A contactgroup does not have a creation date, so somehow we should
   // make one, if this is a new entry
@@ -176,19 +176,19 @@ void KolabBase::setFields( const KContacts::ContactGroup* contactGroup )
 
   // Set creation-time and last-modification-time
   KDateTime creationDate = KDateTime::currentDateTime( KDateTime::Spec( mTimeZone ) );
-  qDebug() <<"Creation date set to current time";
+  kDebug() <<"Creation date set to current time";
 
   KDateTime modified = KDateTime::currentUtcDateTime();
   setLastModified( modified );
   if ( modified < creationDate ) {
     // It's not possible that the modification date is earlier than creation
     creationDate = modified;
-    qDebug() <<"Creation date set to modification date";
+    kDebug() <<"Creation date set to modification date";
   }
   setCreationDate( creationDate );
 }
 
-void KolabBase::saveTo( KContacts::ContactGroup* contactGroup ) const
+void KolabBase::saveTo( KABC::ContactGroup* contactGroup ) const
 {
   contactGroup->setId( uid() );
 }
@@ -300,9 +300,9 @@ bool KolabBase::loadEmailAttribute( QDomElement& element, Email& email )
         email.smtpAddress = e.text();
       else
         // TODO: Unhandled tag - save for later storage
-        qDebug() <<"Warning: Unhandled tag" << e.tagName();
+        kDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      qDebug() <<"Node is not a comment or an element???";
+      kDebug() <<"Node is not a comment or an element???";
   }
 
   return true;

@@ -29,12 +29,14 @@ Note fromNote(const KMime::Message::Ptr &m)
     Note n;
     n.setSummary(toStdString(note.title()));
     n.setDescription(toStdString(note.text()));
-    KDateTime created = KDateTime(note.creationDate());
+    KDateTime created = note.creationDate();
     created.setTimeSpec(KDateTime::UTC);
     n.setCreated(fromDate(created));
 
+// #if KDEPIMLIBS_VERSION >= 0x040840
+#ifdef KDEPIMLIBS_VERSION_DEVEL
     n.setUid(toStdString(note.uid()));
-    KDateTime lastModified = KDateTime(note.lastModifiedDate());
+    KDateTime lastModified = note.lastModifiedDate();
     lastModified.setTimeSpec(KDateTime::UTC);
     n.setLastModified(fromDate(lastModified));
     
@@ -69,6 +71,7 @@ Note fromNote(const KMime::Message::Ptr &m)
     }
     n.setAttachments(attachments);
 
+#endif
     return n;
 }
 
@@ -78,9 +81,10 @@ KMime::Message::Ptr toNote(const Note &n)
     note.setTitle(fromStdString(n.summary()));
     note.setText(fromStdString(n.description()));
     note.setFrom("kolab@kde4");
-    note.setCreationDate(toDate(n.created()).dateTime());
+    note.setCreationDate(toDate(n.created()));
+#ifdef KDEPIMLIBS_VERSION_DEVEL
     note.setUid(fromStdString(n.uid()));
-    note.setLastModifiedDate(toDate(n.lastModified()).dateTime());
+    note.setLastModifiedDate(toDate(n.lastModified()));
     switch (n.classification()) {
         case Kolab::ClassPrivate:
             note.setClassification(Akonadi::NoteUtils::NoteMessageWrapper::Private);
@@ -106,6 +110,7 @@ KMime::Message::Ptr toNote(const Note &n)
     foreach (const Kolab::CustomProperty &a, n.customProperties()) {
         note.custom().insert(fromStdString(a.identifier), fromStdString(a.value));
     }
+#endif
     return note.message();
 }
 

@@ -33,8 +33,8 @@
 
 #include "journal.h"
 #include "libkolab-version.h"
-#include <QDebug>
 
+#include <kdebug.h>
 
 using namespace KolabV2;
 

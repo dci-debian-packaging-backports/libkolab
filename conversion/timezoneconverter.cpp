@@ -17,19 +17,19 @@
 
 #include "timezoneconverter.h"
 #include <ktimezone.h>
+#include <ksystemtimezone.h>
+#include <kdebug.h>
 #include <QRegExp>
 #include <QStringList>
 #include "kolabformat/errorhandler.h"
-#include <QTimeZone>
 
 QString TimezoneConverter::normalizeTimezone(const QString& tz)
 {
-    if (QTimeZone::isTimeZoneIdAvailable(tz.toLatin1())) {
+    KTimeZone timezone = KSystemTimeZones::zone(tz); //Needs ktimezoned (timezone daemon running) http://api.kde.org/4.x-api/kdelibs-apidocs/kdecore/html/classKSystemTimeZones.html
+    if (timezone.isValid()) {
         return tz;
-    }
-    auto normalizedId = QTimeZone::windowsIdToDefaultIanaId(tz.toLatin1());
-    if (!normalizedId.isEmpty()) {
-        return normalizedId;
+    } else if (!KSystemTimeZones::isTimeZoneDaemonAvailable()) {
+        Error() << "ktimezoned is not available and required for timezone interpretation";
     }
     //We're dealing with an invalid or unknown timezone, try to parse it
     QString guessedTimezone = fromCityName(tz);
@@ -39,6 +39,15 @@ QString TimezoneConverter::normalizeTimezone(const QString& tz)
     if (guessedTimezone.isEmpty()) {
         guessedTimezone = fromGMTOffsetTimezone(tz);
     }
+//     if (guessedTimezone.isEmpty()) {
+//         //slower but also finds outdated zones
+//         timezone = KSystemTimeZones::readZone(tz);
+//         if (timezone.isValid()) {
+//             //This thinks all kinds of shit is valid, including /etc/localtime. Let's verify again.
+//             qDebug() << "found " << tz;
+//             return tz;
+//         }
+//     }
     Debug() << "Guessed timezone and found: " << guessedTimezone;
     return guessedTimezone;
 }
@@ -51,12 +60,14 @@ QString TimezoneConverter::fromGMTOffsetTimezone(const QString& tz)
 
 QString TimezoneConverter::fromCityName(const QString& tz)
 {
-    const auto zones = QTimeZone::availableTimeZoneIds();
+    const KTimeZones::ZoneMap zones = KSystemTimeZones::zones();
+    KTimeZones::ZoneMap::const_iterator it = zones.constBegin();
     QHash<QString, QString> countryMap;
-    for (auto zone : zones) {
-        const QString cityName = zone.split('/').last();
+    for(;it != zones.constEnd(); it++) {
+        const QString cityName = it.key().split('/').last();
+//         kDebug() << it.key() << it.value().name() << cityName;
         Q_ASSERT(!countryMap.contains(cityName));
-        countryMap.insert(cityName, zone);
+        countryMap.insert(cityName, it.key());
     }
 
     QRegExp locationFinder("\\b([a-zA-Z])+\\b", Qt::CaseSensitive, QRegExp::RegExp2);
@@ -67,9 +78,9 @@ QString TimezoneConverter::fromCityName(const QString& tz)
             ++pos;
         }
         const QString location = locationFinder.capturedTexts().first();
-        qDebug() << "location " << location;
+//         kDebug() << "location " << location;
         if (countryMap.contains(location)) {
-            qDebug() << "found match " << countryMap.value(location);
+//             kDebug() << "found match " << countryMap.value(location);
             return countryMap.value(location);
         }
     }

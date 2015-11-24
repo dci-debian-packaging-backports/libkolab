@@ -34,7 +34,7 @@
 #include "event.h"
 
 #include <kcalcore/event.h>
-#include <QDebug>
+#include <kdebug.h>
 
 using namespace KolabV2;
 
@@ -82,7 +82,7 @@ void Event::setEndDate( const KDateTime& date )
   mEndDate = date;
   mHasEndDate = true;
   if ( mFloatingStatus == AllDay )
-    qDebug() <<"ERROR: Time on end date but no time on the event";
+    kDebug() <<"ERROR: Time on end date but no time on the event";
   mFloatingStatus = HasTime;
 }
 
@@ -91,7 +91,7 @@ void Event::setEndDate( const QDate& date )
   mEndDate = KDateTime( date );
   mHasEndDate = true;
   if ( mFloatingStatus == HasTime )
-    qDebug() <<"ERROR: No time on end date but time on the event";
+    kDebug() <<"ERROR: No time on end date but time on the event";
   mFloatingStatus = AllDay;
 }
 
@@ -168,7 +168,7 @@ bool Event::loadXML( const QDomDocument& document )
       QDomElement e = n.toElement();
       loadAttribute( e );
     } else
-      qDebug() <<"Node is not a comment or an element???";
+      kDebug() <<"Node is not a comment or an element???";
   }
 
   return true;
@@ -209,7 +209,7 @@ void Event::saveTo( const KCalCore::Event::Ptr &event )
 {
   Incidence::saveTo( event );
 
-  //PORT KF5 ? method removed event->setHasEndDate( mHasEndDate );
+  event->setHasEndDate( mHasEndDate );
   if ( mHasEndDate ) {
     if ( mFloatingStatus == AllDay )
       // This is an all-day event. Don't timezone move this one

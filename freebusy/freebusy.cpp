@@ -22,9 +22,9 @@
 #include "libkolab-version.h"
 #include <kcalcore/freebusy.h>
 #include <kcalcore/icalformat.h>
+#include <kdebug.h>
 #include <quuid.h>
-#include <QTime>
-#include <QDebug>
+
 
 // namespace KCalCore {
 //     struct KCalFreebusy

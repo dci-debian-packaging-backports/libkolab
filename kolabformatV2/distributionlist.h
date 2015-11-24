@@ -34,7 +34,7 @@
 
 #include "kolabbase.h"
 
-namespace KContacts {
+namespace KABC {
   class ContactGroup;
 }
 
@@ -42,11 +42,11 @@ namespace KolabV2 {
 
 class DistributionList : public KolabBase {
 public:
-  explicit DistributionList( const KContacts::ContactGroup* contactGroup );
+  explicit DistributionList( const KABC::ContactGroup* contactGroup );
   DistributionList( const QString& xml );
   ~DistributionList();
 
-  void saveTo( KContacts::ContactGroup* contactGroup );
+  void saveTo( KABC::ContactGroup* contactGroup );
 
   QString type() const { return "DistributionList"; }
 
@@ -68,7 +68,7 @@ public:
   QString productID() const;
 
 protected:
-  void setFields( const KContacts::ContactGroup* );
+  void setFields( const KABC::ContactGroup* );
 
 private:
   void loadDistrListMember( const QDomElement& element );

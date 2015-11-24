@@ -21,6 +21,7 @@
 #include <qtemporaryfile.h>
 #include <qprocess.h>
 #include <quuid.h>
+#include <kdebug.h>
 #include <kolabevent.h>
 #include <kmime/kmime_message.h>
 
@@ -33,26 +34,13 @@ Q_DECLARE_METATYPE(Kolab::Version);
 #define KCOMPARE(actual, expected) \
 do {\
     if ( !(actual == expected) ) { \
-        qDebug() << __FILE__ << ':' << __LINE__ << "Actual: " #actual ": " << actual << "\nExpected: " #expected ": " << expected; \
+        qDebug() << __FILE__ << ':' << __LINE__ << "Actual: " #actual ": " << actual << "\nExpceted: " #expected ": " << expected; \
         return false; \
     } \
     } while (0)
 
 
 #endif
-
-#define DIFFCOMPARE(actual, expected) \
-do {\
-    if ( !(actual.simplified() == expected.simplified()) ) { \
-        qDebug() << "Content not the same."; \
-        showDiff(expected, actual); \
-        QTest::qFail("Compared versions differ.", __FILE__, __LINE__); \
-        return; \
-    } \
-} while (0)
-
-#define TESTVALUE(type, name)\
-    *static_cast<type *>(QTest::qData(#name, ::qMetaTypeId<type >()))
 
 const QString TESTFILEDIR = QString::fromLatin1(TEST_DATA_PATH "/testfiles/");
 
@@ -63,31 +51,27 @@ QString getPath(const char *file) {
 void showDiff(const QString &expected, const QString &converted)
 {
     if (expected.isEmpty() || converted.isEmpty()) {
-        qWarning() << "files are emtpy";
+        kWarning() << "files are emtpy";
         return;
     }
     if (expected == converted) {
-        qWarning() << "contents are the same";
+        kWarning() << "contents are the same";
         return;
     }
-
-    bool showDiff = true;
-    if (showDiff) {
-        QTemporaryFile expectedFile("expectedFile");
-        QTemporaryFile convertedFile("convertedFile");
-        if (expectedFile.open() && convertedFile.open()) {
-            expectedFile.write(expected.toLatin1());
-            convertedFile.write(converted.toLatin1());
-            expectedFile.close();
-            convertedFile.close();
-            QProcess::execute("kdiff3", QStringList() << expectedFile.fileName() << convertedFile.fileName());
-        } else {
-            qWarning() << "files are not open";
-        }
-    } else {
-        qDebug() << "EXPECTED: " << expected;
-        qDebug() << "CONVERTED: " << converted;
-    }
+    // QTemporaryFile expectedFile("expectedFile");
+    // QTemporaryFile convertedFile("convertedFile");
+    // if (expectedFile.open() && convertedFile.open()) {
+    //     expectedFile.write(expected.toLatin1());
+    //     convertedFile.write(converted.toLatin1());
+    //     expectedFile.close();
+    //     convertedFile.close();
+    //     QProcess::execute("kompare", QStringList() << "-c" << expectedFile.fileName() << convertedFile.fileName());
+    // } else {
+    //     kWarning() << "files are not open";
+    // }
+    
+    qDebug() << "EXPECTED: " << expected;
+    qDebug() << "CONVERTED: " << converted;
 }
 
 KMime::Message::Ptr readMimeFile( const QString &fileName, bool &ok)
@@ -96,7 +80,7 @@ KMime::Message::Ptr readMimeFile( const QString &fileName, bool &ok)
     QFile file( fileName );
     ok = file.open( QFile::ReadOnly );
     if (!ok) {
-        qWarning() << "failed to open file: " << fileName;
+        kWarning() << "failed to open file: " << fileName;
         return KMime::Message::Ptr();
     }
     const QByteArray data = file.readAll();
@@ -116,30 +100,16 @@ void normalizeMimemessage(QString &content)
     content.replace(QRegExp("\\bLibkolab-\\d.\\d\\b", Qt::CaseSensitive), "Libkolab-x.x.x");
     content.replace(QRegExp("\\bLibkolabxml-\\d.\\d\\b", Qt::CaseSensitive), "Libkolabxml-x.x.x");
     content.replace(QRegExp("<uri>cid:*@kolab.resource.akonadi</uri>", Qt::CaseSensitive, QRegExp::Wildcard), "<uri>cid:id@kolab.resource.akonadi</uri>");
-    content.replace(QRegExp("Content-ID: <*@kolab.resource.akonadi>", Qt::CaseSensitive, QRegExp::Wildcard), "Content-ID: <id@kolab.resource.akonadi>");
     content.replace(QRegExp("<uri>mailto:*</uri>", Qt::CaseSensitive, QRegExp::Wildcard), "<uri>mailto:</uri>");
     content.replace(QRegExp("<cal-address>mailto:*</cal-address>", Qt::CaseSensitive, QRegExp::Wildcard), "<cal-address>mailto:</cal-address>");
     content.replace(QRegExp("<uri>data:*</uri>", Qt::CaseSensitive, QRegExp::Wildcard), "<uri>data:</uri>");
     content.replace(QRegExp("<last-modification-date>*</last-modification-date>", Qt::CaseSensitive, QRegExp::Wildcard), "<last-modification-date></last-modification-date>");
-    //We no longer support pobox, so remove pobox lines
-    content.replace(QRegExp("<pobox>*</pobox>", Qt::CaseSensitive, QRegExp::Wildcard), "");
     content.replace(QRegExp("<timestamp>*</timestamp>", Qt::CaseSensitive, QRegExp::Wildcard), "<timestamp></timestamp>");
     content.replace(QRegExp("<x-kolab-version>*</x-kolab-version>", Qt::CaseSensitive, QRegExp::Wildcard), "<x-kolab-version></x-kolab-version>");
 
     content.replace(QRegExp("--nextPart\\S*", Qt::CaseSensitive), "--part");
     content.replace(QRegExp("\\bboundary=\"nextPart[^\\n]*", Qt::CaseSensitive), "boundary");
     content.replace(QRegExp("Date[^\\n]*", Qt::CaseSensitive), "Date");
-    //The sort order of the attributes in kolabV2 is unpredictable
-    content.replace(QRegExp("<x-custom*/>", Qt::CaseSensitive, QRegExp::Wildcard), "<x-custom/>");
-    //quoted-printable encoding changes where the linebreaks are every now and then (an all are valid), so we remove the linebreaks
-    content.replace(QRegExp("=\\n", Qt::CaseSensitive), "");
-}
-
-QString normalizeVCardMessage(QString content)
-{
-    //The encoding changes every now and then
-    content.replace(QRegExp("ENCODING=b;TYPE=png:*", Qt::CaseSensitive, QRegExp::Wildcard), "ENCODING=b;TYPE=png:picturedata");
-    return content;
 }
 
 
@@ -172,18 +142,18 @@ static bool LexicographicalCompare( const T &_x, const T &_y )
     return op( x.toString(), y.toString() );
 }
 
-bool normalizePhoneNumbers( KContacts::Addressee &addressee, KContacts::Addressee &refAddressee )
+bool normalizePhoneNumbers( KABC::Addressee &addressee, KABC::Addressee &refAddressee )
 {
-    KContacts::PhoneNumber::List phoneNumbers = addressee.phoneNumbers();
-    KContacts::PhoneNumber::List refPhoneNumbers = refAddressee.phoneNumbers();
+    KABC::PhoneNumber::List phoneNumbers = addressee.phoneNumbers();
+    KABC::PhoneNumber::List refPhoneNumbers = refAddressee.phoneNumbers();
     if ( phoneNumbers.size() != refPhoneNumbers.size() )
         return false;
-    std::sort( phoneNumbers.begin(), phoneNumbers.end(), LexicographicalCompare<std::less, KContacts::PhoneNumber> );
-    std::sort( refPhoneNumbers.begin(), refPhoneNumbers.end(), LexicographicalCompare<std::less, KContacts::PhoneNumber> );
+    std::sort( phoneNumbers.begin(), phoneNumbers.end(), LexicographicalCompare<std::less, KABC::PhoneNumber> );
+    std::sort( refPhoneNumbers.begin(), refPhoneNumbers.end(), LexicographicalCompare<std::less, KABC::PhoneNumber> );
 
     for ( int i = 0; i < phoneNumbers.size(); ++i ) {
-        KContacts::PhoneNumber phoneNumber = phoneNumbers.at( i );
-        const KContacts::PhoneNumber refPhoneNumber = refPhoneNumbers.at( i );
+        KABC::PhoneNumber phoneNumber = phoneNumbers.at( i );
+        const KABC::PhoneNumber refPhoneNumber = refPhoneNumbers.at( i );
         KCOMPARE( LexicographicalCompare<std::equal_to>( phoneNumber, refPhoneNumber ), true );
         addressee.removePhoneNumber( phoneNumber );
         phoneNumber.setId( refPhoneNumber.id() );
@@ -193,26 +163,26 @@ bool normalizePhoneNumbers( KContacts::Addressee &addressee, KContacts::Addresse
         refAddressee.insertPhoneNumber( refPhoneNumber );
     }
 //     for ( int i = 0; i < phoneNumbers.size(); ++i ) {
-//         qDebug() << "--------------------------------------";
-//         qDebug() << addressee.phoneNumbers().at(i).toString();
-//         qDebug() << refAddressee.phoneNumbers().at(i).toString();
+//         kDebug() << "--------------------------------------";
+//         kDebug() << addressee.phoneNumbers().at(i).toString();
+//         kDebug() << refAddressee.phoneNumbers().at(i).toString();
 //     }
 
     return true;
 }
 
-bool normalizeAddresses( KContacts::Addressee &addressee, const KContacts::Addressee &refAddressee )
+bool normalizeAddresses( KABC::Addressee &addressee, const KABC::Addressee &refAddressee )
 {
-    KContacts::Address::List addresses = addressee.addresses();
-    KContacts::Address::List refAddresses = refAddressee.addresses();
+    KABC::Address::List addresses = addressee.addresses();
+    KABC::Address::List refAddresses = refAddressee.addresses();
     if ( addresses.size() != refAddresses.size() )
         return false;
-    std::sort( addresses.begin(), addresses.end(), LexicographicalCompare<std::less, KContacts::Address> );
-    std::sort( refAddresses.begin(), refAddresses.end(), LexicographicalCompare<std::less, KContacts::Address> );
+    std::sort( addresses.begin(), addresses.end(), LexicographicalCompare<std::less, KABC::Address> );
+    std::sort( refAddresses.begin(), refAddresses.end(), LexicographicalCompare<std::less, KABC::Address> );
 
     for ( int i = 0; i < addresses.size(); ++i ) {
-        KContacts::Address address = addresses.at( i );
-        const KContacts::Address refAddress = refAddresses.at( i );
+        KABC::Address address = addresses.at( i );
+        const KABC::Address refAddress = refAddresses.at( i );
         KCOMPARE( LexicographicalCompare<std::equal_to>( address, refAddress ), true );
         addressee.removeAddress( address );
         address.setId( refAddress.id() );
@@ -222,16 +192,16 @@ bool normalizeAddresses( KContacts::Addressee &addressee, const KContacts::Addre
     return true;
 }
 
-void normalizeContact(KContacts::Addressee &addressee)
+void normalizeContact(KABC::Addressee &addressee)
 {
-    KContacts::Address::List addresses = addressee.addresses();
+    KABC::Address::List addresses = addressee.addresses();
     
-    foreach(KContacts::Address a, addresses) {
+    foreach(KABC::Address a, addresses) {
         addressee.removeAddress(a);
         a.setPostOfficeBox(QString()); //Not supported anymore
         addressee.insertAddress(a);
     }
-    addressee.setSound(KContacts::Sound()); //Sound is not supported
+    addressee.setSound(KABC::Sound()); //Sound is not supported
     
     addressee.removeCustom("KOLAB", "CreationDate"); //The creation date is no longer existing
 

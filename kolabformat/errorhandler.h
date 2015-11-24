@@ -19,7 +19,7 @@
 #ifndef ERRORHANDLER_H
 #define ERRORHANDLER_H
 
-#include "kolab_export.h"
+#include <kolab_export.h>
 
 #include <QString>
 #include <QList>

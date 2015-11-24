@@ -23,12 +23,14 @@
 #include <qprocess.h>
 #include <qtemporaryfile.h>
 #include <QBuffer>
+#include <kdebug.h>
+#include <ksystemtimezone.h>
 #include <kolabcontainers.h>
 #include <kolabformat.h>
 
 #include <kcalcore/icalformat.h>
-#include <kcontacts/vcardconverter.h>
-#include <kcontacts/contactgrouptool.h>
+#include <kabc/vcardconverter.h>
+#include <kabc/contactgrouptool.h>
 #include <akonadi/notes/noteutils.h>
 
 #include "testutils.h"
@@ -76,6 +78,7 @@ static bool compareMimeMessage( const KMime::Message::Ptr &msg, const KMime::Mes
 
 void FormatTest::initTestCase()
 {
+    QVERIFY2(KSystemTimeZones::isTimeZoneDaemonAvailable(), "Timezone support is required for this test. Either use libcalendaring or make sure KTimeZoned is available");
 }
 
 void FormatTest::testIncidence_data()
@@ -239,15 +242,15 @@ void FormatTest::testContact()
     QCOMPARE(reader.getVersion(), version);
     QCOMPARE(Kolab::ErrorHandler::instance().error(), Kolab::ErrorHandler::Debug);
     
-    KContacts::Addressee convertedAddressee = reader.getContact();
+    KABC::Addressee convertedAddressee = reader.getContact();
     QVERIFY(!convertedAddressee.isEmpty());
     
     //Parse vcard
     QFile vcardFile( vcardFileName );
     QVERIFY( vcardFile.open( QFile::ReadOnly ) );
-    KContacts::VCardConverter converter;
+    KABC::VCardConverter converter;
     const QByteArray &c = vcardFile.readAll();
-    KContacts::Addressee realAddressee = converter.parseVCard( c );
+    KABC::Addressee realAddressee = converter.parseVCard( c );
 
     // fix up the converted addressee for comparisson
     convertedAddressee.setName( realAddressee.name() ); // name() apparently is something strange
@@ -260,13 +263,10 @@ void FormatTest::testContact()
     }
     QVERIFY( normalizePhoneNumbers( convertedAddressee, realAddressee ) ); // phone number ids are random
     QVERIFY( normalizeAddresses( convertedAddressee, realAddressee ) ); // same here
-    QCOMPARE(realAddressee.photo().type(), convertedAddressee.photo().type());
+//     QCOMPARE(realAddressee.photo().type(), convertedAddressee.photo().type());
     if (realAddressee != convertedAddressee) {
-        showDiff(normalizeVCardMessage(converter.createVCard(realAddressee)), normalizeVCardMessage(converter.createVCard(convertedAddressee)));
+        showDiff(converter.createVCard(realAddressee), converter.createVCard(convertedAddressee));
     }
-    QEXPECT_FAIL("v2contactBug238996", "Currently fails due to missing type=pref attribute of preffered email address. Requires fix in KContacts.", Continue);
-    QEXPECT_FAIL("v2contactEmails", "Currently fails due to missing type=pref attribute of preffered email address. Requires fix in KContacts.", Continue);
-    QEXPECT_FAIL("v3contactComplex", "Currently fails due to missing type=pref attribute of preffered email address. Requires fix in KContacts.", Continue);
     QCOMPARE( realAddressee, convertedAddressee );
 
     //Write
@@ -280,9 +280,6 @@ void FormatTest::testContact()
             QString converted = convertedMime->encodedContent();
             normalizeMimemessage(converted);
             showDiff(expected, converted);
-            QEXPECT_FAIL("v2contactSimple", "The kolab v3 containers don't support postbox, and we therefore loose it in the transformations.", Continue);
-            QEXPECT_FAIL("v2contactAddress", "The kolab v3 containers don't support postbox, and we therefore loose it in the transformations.", Continue);
-            QEXPECT_FAIL("v2contactBug238996", "The kolab v3 containers don't support postbox, and we therefore loose it in the transformations.", Continue);
             QVERIFY( false );
         }
     }
@@ -316,27 +313,27 @@ void FormatTest::testDistlist()
     QCOMPARE(reader.getVersion(), version);
     QCOMPARE(Kolab::ErrorHandler::instance().error(), Kolab::ErrorHandler::Debug);
     
-    KContacts::ContactGroup convertedAddressee = reader.getDistlist();
+    KABC::ContactGroup convertedAddressee = reader.getDistlist();
     
     //Parse vcard
     QFile vcardFile( vcardFileName );
     QVERIFY( vcardFile.open( QFile::ReadOnly ) );
-    KContacts::VCardConverter converter;
+    KABC::VCardConverter converter;
     QByteArray c = vcardFile.readAll();
     QBuffer data(&c);
     data.open(QIODevice::ReadOnly);
     
-    KContacts::ContactGroup realAddressee;
-    KContacts::ContactGroupTool::convertFromXml( &data, realAddressee );
+    KABC::ContactGroup realAddressee;
+    KABC::ContactGroupTool::convertFromXml( &data, realAddressee );
 
     {
         QBuffer expected;
         expected.open(QIODevice::WriteOnly);
-        KContacts::ContactGroupTool::convertToXml(realAddressee, &expected);
+        KABC::ContactGroupTool::convertToXml(realAddressee, &expected);
         
         QBuffer converted;
         converted.open(QIODevice::WriteOnly);
-        KContacts::ContactGroupTool::convertToXml(convertedAddressee, &converted);
+        KABC::ContactGroupTool::convertToXml(convertedAddressee, &converted);
         
         showDiff(expected.buffer(), converted.buffer());
     }
@@ -396,9 +393,7 @@ void FormatTest::testNote()
     normalizeMimemessage(expected);
     QString converted = convertedNote->encodedContent();
     normalizeMimemessage(converted);
-    QEXPECT_FAIL("", "Header sorting is off", Continue);
-    QCOMPARE(expected, converted);
-    // showDiff(expected, converted);
+    showDiff(expected, converted);
     
     //Write
     const KMime::Message::Ptr &convertedMime = Kolab::KolabObjectWriter::writeNote(realNote, version);
@@ -409,9 +404,7 @@ void FormatTest::testNote()
     normalizeMimemessage(expected2);
     QString converted2 = convertedMime->encodedContent();
     normalizeMimemessage(converted2);
-    QEXPECT_FAIL("", "Header sorting is off", Continue);
-    QCOMPARE(expected2, converted2);
-    // showDiff(expected2, converted2);
+    showDiff(expected2, converted2);
 
     QCOMPARE(Kolab::ErrorHandler::instance().error(), Kolab::ErrorHandler::Debug);
 }
@@ -432,17 +425,17 @@ void FormatTest::generateMimefile()
     
 //     QFile vcardFile( getPath("v3/contacts/complex.vcf") );
 //     QVERIFY( vcardFile.open( QFile::ReadOnly ) );
-//     KContacts::VCardConverter converter;
-//     const KContacts::Addressee realAddressee = converter.parseVCard( vcardFile.readAll() );
+//     KABC::VCardConverter converter;
+//     const KABC::Addressee realAddressee = converter.parseVCard( vcardFile.readAll() );
 // 
-//     qDebug() << realAddressee.photo().data();
+//     kDebug() << realAddressee.photo().data();
 // 
 //     QString result;
 //     QTextStream s(&result);
 //     Kolab::overrideTimestamp(Kolab::cDateTime(2012, 5, 5, 5,5,5, true));
 //     Kolab::KolabObjectWriter::writeContact(realAddressee, Kolab::KolabV3)->toStream(s);
     
-//     qDebug() << result;
+//     kDebug() << result;
 }
 
 void FormatTest::generateVCard()
@@ -453,8 +446,8 @@ void FormatTest::generateVCard()
 //     Kolab::KolabObjectReader reader;
 //     Kolab::ObjectType t = reader.parseMimeMessage(msg);
 // 
-//     KContacts::Addressee convertedAddressee = reader.getContact();
-//     KContacts::VCardConverter converter;
+//     KABC::Addressee convertedAddressee = reader.getContact();
+//     KABC::VCardConverter converter;
 //     qDebug() << converter.createVCard(convertedAddressee);
 
 //     bool ok = false;
@@ -463,10 +456,10 @@ void FormatTest::generateVCard()
 //     Kolab::KolabObjectReader reader;
 //     Kolab::ObjectType t = reader.parseMimeMessage(msg);
 // 
-//     KContacts::ContactGroup convertedAddressee = reader.getDistlist();
+//     KABC::ContactGroup convertedAddressee = reader.getDistlist();
 //     QBuffer buf;
 //     buf.open(QIODevice::WriteOnly);
-//     KContacts::ContactGroupTool::convertToXml(convertedAddressee, &buf);
+//     KABC::ContactGroupTool::convertToXml(convertedAddressee, &buf);
 //     qDebug() << buf.buffer();
 }
 

@@ -18,14 +18,14 @@
 #include "datetimeutils.h"
 
 #include <qdebug.h>
-#include <QTimeZone>
+#include <ksystemtimezone.h>
 #include "conversion/commonconversion.h"
 
 namespace Kolab {
     namespace DateTimeUtils {
     KOLAB_EXPORT std::string getLocalTimezone()
     {
-        const QString tz = QTimeZone::systemTimeZoneId();
+        const QString tz = KSystemTimeZones::local().name();
         return tz.toStdString();
     }
 
