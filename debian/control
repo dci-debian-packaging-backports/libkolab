@@ -32,6 +32,8 @@ Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-kolab/libkolab.git
 
 Package: libkolab1
 Architecture: any
+Breaks: libkolab0
+Replaces: libkolab0
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Maps KDE containers to Kolab formats
  libkolab provides conversions from/to KDE containers, MIME message
