@@ -20,17 +20,11 @@
 
 #include <kolab_export.h>
 
-#include <libkolab_config.h>
-
-#ifdef HAVE_TAG_H
-#include <akonadi/item.h>
-#include <akonadi/tag.h>
-#endif
-#ifdef HAVE_RELATION_H
-#include <akonadi/relation.h>
-#endif
-#include <kabc/addressee.h>
-#include <kabc/contactgroup.h>
+#include <AkonadiCore/Item>
+#include <AkonadiCore/Tag>
+#include <AkonadiCore/Relation>
+#include <kcontacts/addressee.h>
+#include <kcontacts/contactgroup.h>
 #include <kcalcore/incidence.h>
 #include <kcalcore/event.h>
 #include <kcalcore/journal.h>
@@ -103,20 +97,16 @@ public:
     KCalCore::Todo::Ptr getTodo() const;
     KCalCore::Journal::Ptr getJournal() const;
     KCalCore::Incidence::Ptr getIncidence() const;
-    KABC::Addressee getContact() const;
-    KABC::ContactGroup getDistlist() const;
+    KContacts::Addressee getContact() const;
+    KContacts::ContactGroup getDistlist() const;
     KMime::Message::Ptr getNote() const;
     QStringList getDictionary(QString &lang) const;
     Freebusy getFreebusy() const;
-#ifdef HAVE_TAG_H
     bool isTag() const;
     Akonadi::Tag getTag() const;
     QStringList getTagMembers() const;
-#endif
-#ifdef HAVE_RELATION_H
     bool isRelation() const;
     Akonadi::Relation getRelation() const;
-#endif
 
 private:
     //@cond PRIVATE
@@ -138,17 +128,13 @@ public:
     static KMime::Message::Ptr writeTodo(const KCalCore::Todo::Ptr &, Version v = KolabV3, const QString &productId = QString(),const QString &tz = QString());
     static KMime::Message::Ptr writeJournal(const KCalCore::Journal::Ptr &, Version v = KolabV3, const QString &productId = QString(),const QString &tz = QString());
     static KMime::Message::Ptr writeIncidence(const KCalCore::Incidence::Ptr &, Version v = KolabV3, const QString &productId = QString(),const QString &tz = QString());
-    static KMime::Message::Ptr writeContact(const KABC::Addressee &, Version v = KolabV3, const QString &productId = QString());
-    static KMime::Message::Ptr writeDistlist(const KABC::ContactGroup &, Version v = KolabV3, const QString &productId = QString());
+    static KMime::Message::Ptr writeContact(const KContacts::Addressee &, Version v = KolabV3, const QString &productId = QString());
+    static KMime::Message::Ptr writeDistlist(const KContacts::ContactGroup &, Version v = KolabV3, const QString &productId = QString());
     static KMime::Message::Ptr writeNote(const KMime::Message::Ptr &, Version v = KolabV3, const QString &productId = QString());
     static KMime::Message::Ptr writeDictionary(const QStringList &, const QString &lang, Version v = KolabV3, const QString &productId = QString());
     static KMime::Message::Ptr writeFreebusy(const Kolab::Freebusy &, Version v = KolabV3, const QString &productId = QString());
-#ifdef HAVE_TAG_H
     static KMime::Message::Ptr writeTag(const Akonadi::Tag &, const QStringList &items, Version v = KolabV3, const QString &productId = QString());
-#endif
-#ifdef HAVE_RELATION_H
     static KMime::Message::Ptr writeRelation(const Akonadi::Relation &, const QStringList &items, Version v = KolabV3, const QString &productId = QString());
-#endif
     
 };
 

@@ -21,8 +21,8 @@
 #include "kolab_export.h"
 
 #include <kolabcontact.h>
-#include <kabc/addressee.h>
-#include <kabc/contactgroup.h>
+#include <kcontacts/addressee.h>
+#include <kcontacts/contactgroup.h>
 
 namespace Kolab {
     /**
@@ -31,11 +31,11 @@ namespace Kolab {
      */
     namespace Conversion {
 
-        KOLAB_EXPORT KABC::Addressee toKABC(const Kolab::Contact &);
-        KOLAB_EXPORT Kolab::Contact fromKABC(const KABC::Addressee &);
+        KOLAB_EXPORT KContacts::Addressee toKABC(const Kolab::Contact &);
+        KOLAB_EXPORT Kolab::Contact fromKABC(const KContacts::Addressee &);
         
-        KOLAB_EXPORT KABC::ContactGroup toKABC(const Kolab::DistList &);
-        KOLAB_EXPORT Kolab::DistList fromKABC(const KABC::ContactGroup &);
+        KOLAB_EXPORT KContacts::ContactGroup toKABC(const Kolab::DistList &);
+        KOLAB_EXPORT Kolab::DistList fromKABC(const KContacts::ContactGroup &);
 
     };
 };

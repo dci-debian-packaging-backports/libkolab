@@ -20,7 +20,6 @@
 #include "conversion/kcalconversion.h"
 #include <kmime/kmime_message.h>
 #include <kolabformat.h>
-#include <kdebug.h>
 #include "testutils.h"
 
 KMime::Message::Ptr readMimeFile( const QString &fileName )

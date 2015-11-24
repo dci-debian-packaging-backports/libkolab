@@ -35,7 +35,6 @@ private slots:
     // void testKolabObjectReader();
     void testFindLegacyTimezone();
     void testIgnoreInvalidTimezone();
-    void testTimezoneDaemonAvailable();
     void testUTCOffset();
     void localTimezone();
 };

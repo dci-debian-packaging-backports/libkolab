@@ -20,10 +20,11 @@
 
 #include <QtCore/QObject>
 #include <QtTest/QtTest>
-#include <ksystemtimezone.h>
 #include <kolabcontact.h>
 #include <kcalcore/recurrence.h>
-#include <kabc/addressee.h>
+#include <kcontacts/addressee.h>
+#include <KTimeZone>
+#include <KSystemTimeZones>
 
 #include "conversion/kcalconversion.h"
 #include "conversion/kcalconversion.cpp"
@@ -55,7 +56,6 @@ void compareAttendeesVectors(const KCalCore::Attendee::List &list, const KCalCor
 
 void KCalConversionTest::initTestCase()
 {
-    QVERIFY2(KSystemTimeZones::isTimeZoneDaemonAvailable(), "Timezone support is required for this test. Either use libcalendaring or make sure KTimeZoned is available");
 }
 
 void KCalConversionTest::testDate_data()
@@ -501,11 +501,11 @@ void KCalConversionTest::testJournalConversion()
 
 void KCalConversionTest::testContactConversion_data()
 {
-    QTest::addColumn<KABC::Addressee>( "kcal" );
+    QTest::addColumn<KContacts::Addressee>( "kcal" );
     QTest::addColumn<Kolab::Contact>( "kolab" );
     
     {
-        KABC::Addressee kcal;
+        KContacts::Addressee kcal;
         kcal.setUid("uid");
         kcal.setFormattedName("name");
 
@@ -516,7 +516,7 @@ void KCalConversionTest::testContactConversion_data()
         QTest::newRow("basic") << kcal << kolab;
     }
     {
-        KABC::Addressee kcal;
+        KContacts::Addressee kcal;
         kcal.setUid("uid");
         kcal.setFormattedName("name");
         kcal.setBirthday(QDateTime(QDate(2012,2,2)));
@@ -530,7 +530,7 @@ void KCalConversionTest::testContactConversion_data()
         QTest::newRow("bday") << kcal << kolab;
     }
     {
-        KABC::Addressee kcal;
+        KContacts::Addressee kcal;
         kcal.setUid("uid");
         //The first address is always the preferred
         kcal.setEmails(QStringList() << "email1@example.org" << "email2@example.org");
@@ -554,10 +554,10 @@ void KCalConversionTest::testContactConversion_data()
 
 void KCalConversionTest::testContactConversion()
 {
-    QFETCH(KABC::Addressee, kcal);
+    QFETCH(KContacts::Addressee, kcal);
     QFETCH(Kolab::Contact, kolab);
     
-    const KABC::Addressee &e = toKABC(kolab);
+    const KContacts::Addressee &e = toKABC(kolab);
     
     QCOMPARE(e.uid(), kcal.uid());
     QCOMPARE(e.formattedName(), kcal.formattedName());

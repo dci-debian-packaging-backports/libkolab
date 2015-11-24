@@ -32,9 +32,9 @@
 
 #include "contact.h"
 
-#include <kabc/addressee.h>
-#include <kdebug.h>
+#include <kcontacts/addressee.h>
 #include <QFile>
+#include <QDebug>
 #include <float.h>
 
 using namespace KolabV2;
@@ -45,7 +45,7 @@ static const char* s_soundAttachmentName = "sound";
 static const char* s_unhandledTagAppName = "KOLABUNHANDLED"; // no hyphens in appnames!
 
 // saving (addressee->xml)
-Contact::Contact( const KABC::Addressee* addr )
+Contact::Contact( const KContacts::Addressee* addr )
   : mHasGeo( false )
 {
   setFields( addr );
@@ -397,9 +397,9 @@ bool Contact::loadNameAttribute( QDomElement& element )
         setSuffix( e.text() );
       else
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   return true;
@@ -435,9 +435,9 @@ bool Contact::loadPhoneAttribute( QDomElement& element )
         number.number = e.text();
       else
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   addPhoneNumber( number );
@@ -519,9 +519,9 @@ bool Contact::loadAddressAttribute( QDomElement& element )
         address.country = e.text();
       else
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   addAddress( address );
@@ -780,7 +780,7 @@ bool Contact::loadXML( const QDomDocument& document )
       QDomElement e = n.toElement();
       if ( !loadAttribute( e ) ) {
         // Unhandled tag - save for later storage
-        //kDebug() <<"Saving unhandled tag" << e.tagName();
+        //qDebug() <<"Saving unhandled tag" << e.tagName();
         Custom c;
         c.app = s_unhandledTagAppName;
         c.name = e.tagName();
@@ -788,7 +788,7 @@ bool Contact::loadXML( const QDomDocument& document )
         mCustomList.append( c );
       }
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   return true;
@@ -804,11 +804,11 @@ QString Contact::saveXML() const
   return document.toString();
 }
 
-static QString addressTypeToString( int /*KABC::Address::Type*/ type )
+static QString addressTypeToString( int /*KContacts::Address::Type*/ type )
 {
-  if ( type & KABC::Address::Home )
+  if ( type & KContacts::Address::Home )
     return "home";
-  if ( type & KABC::Address::Work )
+  if ( type & KContacts::Address::Work )
     return "business";
   return "other";
 }
@@ -816,110 +816,110 @@ static QString addressTypeToString( int /*KABC::Address::Type*/ type )
 static int addressTypeFromString( const QString& type )
 {
   if ( type == "home" )
-    return KABC::Address::Home;
+    return KContacts::Address::Home;
   if ( type == "business" )
-    return KABC::Address::Work;
+    return KContacts::Address::Work;
   // well, this shows "other" in the editor, which is what we want...
-  return KABC::Address::Dom | KABC::Address::Intl | KABC::Address::Postal | KABC::Address::Parcel;
+  return KContacts::Address::Dom | KContacts::Address::Intl | KContacts::Address::Postal | KContacts::Address::Parcel;
 }
 
-static QStringList phoneTypeToString( KABC::PhoneNumber::Type type )
+static QStringList phoneTypeToString( KContacts::PhoneNumber::Type type )
 {
   // KABC has a bitfield, i.e. the same phone number can be used for work and home
   // and fax and cellphone etc. etc.
   // So when saving we need to create as many tags as bits that were set.
   QStringList types;
-  if ( type & KABC::PhoneNumber::Fax ) {
-    if ( type & KABC::PhoneNumber::Home )
+  if ( type & KContacts::PhoneNumber::Fax ) {
+    if ( type & KContacts::PhoneNumber::Home )
       types << "homefax";
-    else // assume work -- if ( type & KABC::PhoneNumber::Work )
+    else // assume work -- if ( type & KContacts::PhoneNumber::Work )
       types << "businessfax";
-    type = type & ~KABC::PhoneNumber::Home;
-    type = type & ~KABC::PhoneNumber::Work;
+    type = type & ~KContacts::PhoneNumber::Home;
+    type = type & ~KContacts::PhoneNumber::Work;
   }
 
   // To support both "home1" and "home2", map Home+Pref to home1
-  if ( ( type & KABC::PhoneNumber::Home ) && ( type & KABC::PhoneNumber::Pref ) )
+  if ( ( type & KContacts::PhoneNumber::Home ) && ( type & KContacts::PhoneNumber::Pref ) )
   {
       types << "home1";
-      type = type & ~KABC::PhoneNumber::Home;
-      type = type & ~KABC::PhoneNumber::Pref;
+      type = type & ~KContacts::PhoneNumber::Home;
+      type = type & ~KContacts::PhoneNumber::Pref;
   }
   // To support both "business1" and "business2", map Work+Pref to business1
-  if ( ( type & KABC::PhoneNumber::Work ) && ( type & KABC::PhoneNumber::Pref ) )
+  if ( ( type & KContacts::PhoneNumber::Work ) && ( type & KContacts::PhoneNumber::Pref ) )
   {
       types << "business1";
-      type = type & ~KABC::PhoneNumber::Work;
-      type = type & ~KABC::PhoneNumber::Pref;
+      type = type & ~KContacts::PhoneNumber::Work;
+      type = type & ~KContacts::PhoneNumber::Pref;
   }
 
 
-  if ( type & KABC::PhoneNumber::Home )
+  if ( type & KContacts::PhoneNumber::Home )
     types << "home2";
-  if ( type & KABC::PhoneNumber::Msg ) // Msg==messaging
+  if ( type & KContacts::PhoneNumber::Msg ) // Msg==messaging
     types << "company";
-  if ( type & KABC::PhoneNumber::Work )
+  if ( type & KContacts::PhoneNumber::Work )
     types << "business2";
-  if ( type & KABC::PhoneNumber::Pref )
+  if ( type & KContacts::PhoneNumber::Pref )
     types << "primary";
-  if ( type & KABC::PhoneNumber::Voice )
+  if ( type & KContacts::PhoneNumber::Voice )
     types << "callback"; // ##
-  if ( type & KABC::PhoneNumber::Cell )
+  if ( type & KContacts::PhoneNumber::Cell )
     types << "mobile";
-  if ( type & KABC::PhoneNumber::Video )
+  if ( type & KContacts::PhoneNumber::Video )
     types << "radio"; // ##
-  if ( type & KABC::PhoneNumber::Bbs )
+  if ( type & KContacts::PhoneNumber::Bbs )
     types << "ttytdd";
-  if ( type & KABC::PhoneNumber::Modem )
+  if ( type & KContacts::PhoneNumber::Modem )
     types << "telex"; // #
-  if ( type & KABC::PhoneNumber::Car )
+  if ( type & KContacts::PhoneNumber::Car )
     types << "car";
-  if ( type & KABC::PhoneNumber::Isdn )
+  if ( type & KContacts::PhoneNumber::Isdn )
     types << "isdn";
-  if ( type & KABC::PhoneNumber::Pcs )
+  if ( type & KContacts::PhoneNumber::Pcs )
     types << "assistant"; // ## Assistant is e.g. secretary
-  if ( type & KABC::PhoneNumber::Pager )
+  if ( type & KContacts::PhoneNumber::Pager )
     types << "pager";
   return types;
 }
 
-static KABC::PhoneNumber::Type phoneTypeFromString( const QString& type )
+static KContacts::PhoneNumber::Type phoneTypeFromString( const QString& type )
 {
   if ( type == "homefax" )
-    return KABC::PhoneNumber::Home | KABC::PhoneNumber::Fax;
+    return KContacts::PhoneNumber::Home | KContacts::PhoneNumber::Fax;
   if ( type == "businessfax" )
-    return KABC::PhoneNumber::Work | KABC::PhoneNumber::Fax;
+    return KContacts::PhoneNumber::Work | KContacts::PhoneNumber::Fax;
   if ( type == "business1" )
-    return KABC::PhoneNumber::Work | KABC::PhoneNumber::Pref;
+    return KContacts::PhoneNumber::Work | KContacts::PhoneNumber::Pref;
   if ( type == "business2" )
-    return KABC::PhoneNumber::Work;
+    return KContacts::PhoneNumber::Work;
   if ( type == "home1" )
-    return KABC::PhoneNumber::Home | KABC::PhoneNumber::Pref;
+    return KContacts::PhoneNumber::Home | KContacts::PhoneNumber::Pref;
   if ( type == "home2" )
-    return KABC::PhoneNumber::Home;
+    return KContacts::PhoneNumber::Home;
   if ( type == "company" )
-    return KABC::PhoneNumber::Msg;
+    return KContacts::PhoneNumber::Msg;
   if ( type == "primary" )
-    return KABC::PhoneNumber::Pref;
+    return KContacts::PhoneNumber::Pref;
   if ( type == "callback" )
-    return KABC::PhoneNumber::Voice;
+    return KContacts::PhoneNumber::Voice;
   if ( type == "mobile" )
-    return KABC::PhoneNumber::Cell;
+    return KContacts::PhoneNumber::Cell;
   if ( type == "radio" )
-    return KABC::PhoneNumber::Video;
+    return KContacts::PhoneNumber::Video;
   if ( type == "ttytdd" )
-    return KABC::PhoneNumber::Bbs;
+    return KContacts::PhoneNumber::Bbs;
   if ( type == "telex" )
-    return KABC::PhoneNumber::Modem;
+    return KContacts::PhoneNumber::Modem;
   if ( type == "car" )
-    return KABC::PhoneNumber::Car;
+    return KContacts::PhoneNumber::Car;
   if ( type == "isdn" )
-    return KABC::PhoneNumber::Isdn;
+    return KContacts::PhoneNumber::Isdn;
   if ( type == "assistant" )
-    return KABC::PhoneNumber::Pcs;
+    return KContacts::PhoneNumber::Pcs;
   if ( type == "pager" )
-    return KABC::PhoneNumber::Pager;
-  return KABC::PhoneNumber::Home; // whatever
+    return KContacts::PhoneNumber::Pager;
+  return KContacts::PhoneNumber::Home; // whatever
 }
 
 static const char* s_knownCustomFields[] = {
@@ -936,7 +936,7 @@ static const char* s_knownCustomFields[] = {
 
 
 // The saving is addressee -> Contact -> xml, this is the first part
-void Contact::setFields( const KABC::Addressee* addressee )
+void Contact::setFields( const KContacts::Addressee* addressee )
 {
   KolabBase::setFields( addressee );
 
@@ -966,7 +966,7 @@ void Contact::setFields( const KABC::Addressee* addressee )
 
   const QStringList emails = addressee->emails();
   // Conversion problem here:
-  // KABC::Addressee has only one full name and N addresses, but the XML format
+  // KContacts::Addressee has only one full name and N addresses, but the XML format
   // has N times (fullname+address). So we just copy the fullname over and ignore it on loading.
   for ( QStringList::ConstIterator it = emails.constBegin(); it != emails.constEnd(); ++it ) {
     Email email;
@@ -980,8 +980,8 @@ void Contact::setFields( const KABC::Addressee* addressee )
 
   // Now the real-world addresses
   QString preferredAddress = "home";
-  const KABC::Address::List addresses = addressee->addresses();
-  for ( KABC::Address::List::ConstIterator it = addresses.constBegin() ; it != addresses.constEnd(); ++it ) {
+  const KContacts::Address::List addresses = addressee->addresses();
+  for ( KContacts::Address::List::ConstIterator it = addresses.constBegin() ; it != addresses.constEnd(); ++it ) {
     Address address;
     address.kdeAddressType = (*it).type();
     address.type = addressTypeToString( address.kdeAddressType );
@@ -994,14 +994,14 @@ void Contact::setFields( const KABC::Addressee* addressee )
     // ## TODO not in the XML format: extended address info.
     // ## KDE-specific tags? Or hiding those fields? Or adding a warning?
     addAddress( address );
-    if ( address.kdeAddressType & KABC::Address::Pref ) {
+    if ( address.kdeAddressType & KContacts::Address::Pref ) {
       preferredAddress = address.type; // home, business or other
     }
   }
   setPreferredAddress( preferredAddress );
 
-  const KABC::PhoneNumber::List phones = addressee->phoneNumbers();
-  for ( KABC::PhoneNumber::List::ConstIterator it = phones.constBegin(); it != phones.constEnd(); ++it ) {
+  const KContacts::PhoneNumber::List phones = addressee->phoneNumbers();
+  for ( KContacts::PhoneNumber::List::ConstIterator it = phones.constBegin(); it != phones.constEnd(); ++it ) {
     // Create a tag per phone type set in the bitfield
     QStringList types = phoneTypeToString( (*it).type() );
     for( QStringList::ConstIterator typit = types.constBegin(); typit != types.constEnd(); ++typit ) {
@@ -1040,7 +1040,7 @@ void Contact::setFields( const KABC::Addressee* addressee )
     knownCustoms << QString::fromLatin1( *p );
   QStringList customs = addressee->customs();
   for( QStringList::ConstIterator it = customs.constBegin(); it != customs.constEnd(); ++it ) {
-    // KABC::Addressee doesn't offer a real way to iterate over customs, other than splitting strings ourselves
+    // KContacts::Addressee doesn't offer a real way to iterate over customs, other than splitting strings ourselves
     // The format is "app-name:value".
     int pos = (*it).indexOf( '-' );
     if ( pos == -1 ) continue;
@@ -1052,7 +1052,7 @@ void Contact::setFields( const KABC::Addressee* addressee )
     QString value = name.mid( pos + 1 );
     name = name.left( pos );
     if ( !knownCustoms.contains( name ) ) {
-      //kDebug() <<"app=" << app <<" name=" << name <<" value=" << value;
+      //qDebug() <<"app=" << app <<" name=" << name <<" value=" << value;
       Custom c;
       if ( app != "KADDRESSBOOK" ) // that's the default
         c.app = app;
@@ -1078,7 +1078,7 @@ void Contact::setFields( const KABC::Addressee* addressee )
 
 
 // The loading is: xml -> Contact -> addressee, this is the second part
-void Contact::saveTo( KABC::Addressee* addressee )
+void Contact::saveTo( KContacts::Addressee* addressee )
 {
   // TODO: This needs the same set of TODOs as the setFields method
   KolabBase::saveTo( addressee );
@@ -1090,7 +1090,7 @@ void Contact::saveTo( KABC::Addressee* addressee )
   addressee->setPrefix( prefix() );
   addressee->setSuffix( suffix() );
   addressee->setOrganization( organization() );
-  addressee->setUrl( webPage() );
+  addressee->setUrl( QUrl(webPage()) );
   addressee->insertCustom( "KADDRESSBOOK", "X-IMAddress", imAddress() );
   addressee->setDepartment( department() );
   addressee->insertCustom( "KADDRESSBOOK", "X-Office", officeLocation() );
@@ -1115,23 +1115,23 @@ void Contact::saveTo( KABC::Addressee* addressee )
   // We need to store both the original attachment name and the picture data into the addressee.
   // This is important, otherwise we would save the image under another attachment name w/o deleting the original one!
   if ( !mPicture.isNull() ) {
-    KABC::Picture picture( mPicture );
+    KContacts::Picture picture( mPicture );
     addressee->setPhoto( picture );
   }
   // Note that we must save the filename in all cases, so that removing the picture
   // actually deletes the attachment.
   addressee->insertCustom( "KOLAB", "PictureAttachmentName", mPictureAttachmentName );
   if ( !mLogo.isNull() ) {
-    KABC::Picture picture( mLogo );
+    KContacts::Picture picture( mLogo );
     addressee->setLogo( picture );
   }
   addressee->insertCustom( "KOLAB", "LogoAttachmentName", mLogoAttachmentName );
   if ( !mSound.isNull() )
-    addressee->setSound( KABC::Sound( mSound ) );
+    addressee->setSound( KContacts::Sound( mSound ) );
   addressee->insertCustom( "KOLAB", "SoundAttachmentName", mSoundAttachmentName );
 
   if ( mHasGeo )
-    addressee->setGeo( KABC::Geo( mLatitude, mLongitude ) );
+    addressee->setGeo( KContacts::Geo( mLatitude, mLongitude ) );
 
   QStringList emailAddresses;
   for ( QList<Email>::ConstIterator it = mEmails.constBegin(); it != mEmails.constEnd(); ++it ) {
@@ -1141,14 +1141,14 @@ void Contact::saveTo( KABC::Addressee* addressee )
   addressee->setEmails( emailAddresses );
 
   for ( QList<Address>::ConstIterator it = mAddresses.constBegin(); it != mAddresses.constEnd(); ++it ) {
-    KABC::Address address;
+    KContacts::Address address;
     int type = (*it).kdeAddressType;
     if ( type == -1 ) { // no kde-specific type available
       type = addressTypeFromString( (*it).type );
       if ( (*it).type == mPreferredAddress )
-        type |= KABC::Address::Pref;
+        type |= KContacts::Address::Pref;
     }
-    address.setType( static_cast<KABC::Address::Type>(type) );
+    address.setType( static_cast<KContacts::Address::Type>(type) );
     address.setStreet( (*it).street );
     address.setPostOfficeBox( (*it).pobox );
     address.setLocality( (*it).locality );
@@ -1159,7 +1159,7 @@ void Contact::saveTo( KABC::Addressee* addressee )
   }
 
   for ( QList<PhoneNumber>::ConstIterator it = mPhoneNumbers.constBegin(); it != mPhoneNumbers.constEnd(); ++it ) {
-    KABC::PhoneNumber number;
+    KContacts::PhoneNumber number;
     number.setType( phoneTypeFromString( (*it).type ) );
     number.setNumber( (*it).number );
     addressee->insertPhoneNumber( number );
@@ -1169,15 +1169,15 @@ void Contact::saveTo( KABC::Addressee* addressee )
     QString app = (*it).app.isEmpty() ? QString::fromLatin1( "KADDRESSBOOK" ) : (*it).app;
     addressee->insertCustom( app, (*it).name, (*it).value );
   }
-  //kDebug() << addressee->customs();
+  //qDebug() << addressee->customs();
 }
 
-QImage Contact::loadPictureFromAddressee( const KABC::Picture& picture )
+QImage Contact::loadPictureFromAddressee( const KContacts::Picture& picture )
 {
   QImage img;
   if ( !picture.isIntern() && !picture.url().isEmpty() ) {
     QString tmpFile;
-    kWarning() << "external pictures are currently not supported";
+    qWarning() << "external pictures are currently not supported";
     //FIXME add kio support to libcalendaring or use libcurl
 //     if ( KIO::NetAccess::download( picture.url(), tmpFile, 0 /*no widget known*/ ) ) {
 //       img.load( tmpFile );
@@ -1188,7 +1188,7 @@ QImage Contact::loadPictureFromAddressee( const KABC::Picture& picture )
   return img;
 }
 
-QByteArray KolabV2::Contact::loadSoundFromAddressee( const KABC::Sound& sound )
+QByteArray KolabV2::Contact::loadSoundFromAddressee( const KContacts::Sound& sound )
 {
   QByteArray data;
   if ( !sound.isIntern() && !sound.url().isEmpty() ) {

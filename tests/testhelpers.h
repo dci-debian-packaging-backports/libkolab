@@ -26,7 +26,7 @@
 #include <kcalcore/event.h>
 #include <kcalcore/todo.h>
 #include <kcalcore/journal.h>
-#include <kabc/addressee.h>
+#include <kcontacts/addressee.h>
 
 #include <kolabformat.h>
 
@@ -44,14 +44,6 @@ Q_DECLARE_METATYPE(std::vector<Kolab::FreebusyPeriod>);
 Q_DECLARE_METATYPE(KCalCore::Event);
 Q_DECLARE_METATYPE(KCalCore::Todo);
 Q_DECLARE_METATYPE(KCalCore::Journal);
-
-#if KDEPIMLIBS_VERSION_MAJOR <= 4
-#if KDEPIMLIBS_VERSION_MINOR <= 11
-#if KDEPIMLIBS_VERSION_PATCH < 52
-Q_DECLARE_METATYPE(KCalCore::Duration);
-#endif
-#endif
-#endif
 
 namespace QTest {
     
@@ -141,7 +133,7 @@ namespace QTest {
     template<>
     char *toString(const KCalCore::Recurrence &at)
     {
-        at.dump();
+        // at.dump();
         KCalCore::RecurrenceRule *r = at.defaultRRule();
         QByteArray ba;
         if (!r) {

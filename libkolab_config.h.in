@@ -1,6 +1,0 @@
-/* This file is generated from libkolab_config.h.cmake. */
-
-/* Whether akonadi/tag.h exists. */
-#cmakedefine HAVE_TAG_H 1
-/* Whether akonadi/relation.h exists. */
-#cmakedefine HAVE_RELATION_H 1

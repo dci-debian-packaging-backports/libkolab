@@ -22,7 +22,7 @@ Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="kolab.xml"
 
 <?xml version=3D"1.0" encoding=3D"UTF-8" standalone=3D"no" ?>
-<note xmlns=3D"http://kolab.org" version=3D"3.0dev1">
+<note xmlns=3D"http://kolab.org" version=3D"3.0">
 
   <uid>c04ad759-ff7f-0000-e12b-a41f537f0000</uid>
 
