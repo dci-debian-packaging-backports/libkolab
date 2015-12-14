@@ -947,7 +947,7 @@ void Contact::setFields( const KContacts::Addressee* addressee )
   setPrefix( addressee->prefix() );
   setSuffix( addressee->suffix() );
   setOrganization( addressee->organization() );
-  setWebPage( addressee->url().url() );
+  setWebPage( addressee->url().url().url() );
   setIMAddress( addressee->custom( "KADDRESSBOOK", "X-IMAddress" ) );
   setDepartment( addressee->department());
   setOfficeLocation( addressee->custom( "KADDRESSBOOK", "X-Office" ) );
@@ -1082,6 +1082,9 @@ void Contact::saveTo( KContacts::Addressee* addressee )
 {
   // TODO: This needs the same set of TODOs as the setFields method
   KolabBase::saveTo( addressee );
+  KContacts::ResourceLocatorUrl url;
+
+  url.setUrl(QUrl(webPage()));
 
   addressee->setGivenName( givenName() );
   addressee->setAdditionalName( middleNames() );
@@ -1090,7 +1093,7 @@ void Contact::saveTo( KContacts::Addressee* addressee )
   addressee->setPrefix( prefix() );
   addressee->setSuffix( suffix() );
   addressee->setOrganization( organization() );
-  addressee->setUrl( QUrl(webPage()) );
+  addressee->setUrl(url);
   addressee->insertCustom( "KADDRESSBOOK", "X-IMAddress", imAddress() );
   addressee->setDepartment( department() );
   addressee->insertCustom( "KADDRESSBOOK", "X-Office", officeLocation() );

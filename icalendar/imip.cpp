@@ -84,7 +84,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
 
     if ( !attachment.isEmpty() ) {
       KMime::Headers::ContentDisposition *disposition =
-        new KMime::Headers::ContentDisposition( message.get() );
+        new KMime::Headers::ContentDisposition();
       disposition->setDisposition( KMime::Headers::CDinline );
       message->setHeader( disposition );
       message->contentTransferEncoding()->setEncoding( KMime::Headers::CEquPr );
@@ -103,7 +103,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
     // Set the first multipart, the body message.
     KMime::Content *bodyMessage = new KMime::Content;
     KMime::Headers::ContentDisposition *bodyDisposition =
-      new KMime::Headers::ContentDisposition( bodyMessage );
+      new KMime::Headers::ContentDisposition();
     bodyDisposition->setDisposition( KMime::Headers::CDinline );
     bodyMessage->contentType()->setMimeType( "text/plain" );
     bodyMessage->contentType()->setCharset( "utf-8" );
@@ -115,7 +115,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
     if ( !attachment.isEmpty() ) {
       KMime::Content *attachMessage = new KMime::Content;
       KMime::Headers::ContentDisposition *attachDisposition =
-        new KMime::Headers::ContentDisposition( attachMessage );
+        new KMime::Headers::ContentDisposition();
       attachDisposition->setDisposition( KMime::Headers::CDattachment );
       attachMessage->contentType()->setMimeType( "text/calendar" );
       attachMessage->contentType()->setCharset( "utf-8" );
