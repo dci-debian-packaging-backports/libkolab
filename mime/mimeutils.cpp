@@ -153,9 +153,13 @@ KMime::Message::Ptr createMessage(const QByteArray& xKolabType, bool v3, const Q
 {
     KMime::Message::Ptr message(new KMime::Message);
     message->date()->setDateTime(KDateTime::currentUtcDateTime().dateTime());
-    message->appendHeader(new KMime::Headers::Generic(X_KOLAB_TYPE_HEADER, message.get(), xKolabType, "utf-8"));
+    KMime::Headers::Generic* h = new KMime::Headers::Generic(X_KOLAB_TYPE_HEADER);
+    h->fromUnicodeString(xKolabType, "utf-8");
+    message->appendHeader(h);
     if (v3) {
-        message->appendHeader(new KMime::Headers::Generic(X_KOLAB_MIME_VERSION_HEADER, message.get(), KOLAB_VERSION_V3, "utf-8"));
+        KMime::Headers::Generic* hv3 = new KMime::Headers::Generic(X_KOLAB_MIME_VERSION_HEADER);
+        hv3->fromUnicodeString(KOLAB_VERSION_V3, "utf-8");
+        message->appendHeader(hv3);
     }
     message->userAgent()->from7BitString(prodid);
     message->contentType()->setMimeType("multipart/mixed");

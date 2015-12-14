@@ -385,12 +385,12 @@ void FormatTest::testNote()
     QCOMPARE(Kolab::ErrorHandler::instance().error(), Kolab::ErrorHandler::Debug);
 
     KMime::Message::Ptr convertedNote = reader.getNote();
-    QVERIFY(convertedNote.get());
+    QVERIFY(convertedNote.data());
 
     //Parse note
     const KMime::Message::Ptr &realNote = readMimeFile( noteFileName, ok );
     QVERIFY(ok);
-    QVERIFY(realNote.get());
+    QVERIFY(realNote.data());
 
     QString expected = realNote->encodedContent();
     normalizeMimemessage(expected);
@@ -402,8 +402,8 @@ void FormatTest::testNote()
     
     //Write
     const KMime::Message::Ptr &convertedMime = Kolab::KolabObjectWriter::writeNote(realNote, version);
-    QVERIFY(convertedMime.get());
-    QVERIFY(msg.get());
+    QVERIFY(convertedMime.data());
+    QVERIFY(msg.data());
 
     QString expected2 = msg->encodedContent();
     normalizeMimemessage(expected2);

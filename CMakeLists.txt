@@ -32,7 +32,7 @@ endif()
 set(Libkolab_VERSION_MAJOR 1)
 set(Libkolab_VERSION_MINOR 0)
 # Enable the full x.y.z version only for release versions
-set(Libkolab_VERSION_PATCH 0)
+set(Libkolab_VERSION_PATCH 2)
 #set(Libkolab_VERSION ${Libkolab_VERSION_MAJOR}.${Libkolab_VERSION_MINOR}.${Libkolab_VERSION_PATCH})
 set(Libkolab_VERSION ${Libkolab_VERSION_MAJOR}.${Libkolab_VERSION_MINOR})
 set(Libkolab_VERSION_STRING ${CMAKE_PROJECT_NAME}-${Libkolab_VERSION})
@@ -57,8 +57,8 @@ find_package(Qt5Core REQUIRED)
 
 
 # Do the building
-find_package(Libkolabxml 1.1 REQUIRED)
-macro_log_feature(Libkolabxml_FOUND "Libkolabxml" "Kolab XML Format 3 serializing library" "http://git.kolab.org/libkolabxml/" TRUE "1.0" "Required for reading/writing Kolab XML Objects")
+find_package(Libkolabxml 1.1.1 REQUIRED)
+macro_log_feature(Libkolabxml_FOUND "Libkolabxml" "Kolab XML Format 3 serializing library" "https://git.kolab.org/diffusion/LKX/" TRUE "1.1.1" "Required for reading/writing Kolab XML Objects")
 
 set(QT_REQUIRED_VERSION "5.2.0")
 
@@ -68,11 +68,13 @@ if (Qt5_POSITION_INDEPENDENT_CODE)
 endif()
 
 set(KDEPIMLIBS_LIB_VERSION "4.71.0")
+set(KMIME_LIB_VERSION "4.84.0")
+find_package(KF5CoreAddons CONFIG REQUIRED)
 find_package(KF5Akonadi ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
 find_package(KF5Contacts ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
 find_package(KF5CalendarCore ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
 find_package(KF5CalendarUtils ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
-find_package(KF5Mime ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
+find_package(KF5Mime ${KMIME_LIB_VERSION} CONFIG REQUIRED)
 find_package(KF5AkonadiNotes ${KDEPIMLIBS_LIB_VERSION} CONFIG REQUIRED)
 
 find_package(SWIG)
