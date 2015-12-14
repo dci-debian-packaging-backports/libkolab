@@ -1,0 +1,13 @@
+The pkg-kolab team using git-buildpackage (gbp) [0] for their deployment.
+
+Additionally we have following rules:
+* master is the branch for sid
+* using pristine-tar / upstream branch -> so importing ala:
+gbp import-orig ../libkolab_<VERSION>.orig.tar.gz --pristine-tar
+* the changelog entry for a new upstream has debian revision -0 version 
+  and distribution UNRELEASED
+* changelog is not updated with every patch; gbp dch is used instead.
+* the debian tag should only be uploaded, if the package was successfully 
+  uploaded to debian repository (mail from Debian queue daemon)
+
+[0] http://honk.sigxcpu.org/projects/git-buildpackage/manual-html/gbp.html
