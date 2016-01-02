@@ -1,2 +1,3 @@
 version=3
-http://mirror.kolabsys.com/pub/releases/libkolab-([0-9\.]+)\.tar\.gz
+opts="pgpmode=self" \
+http://mirror.kolabsys.com/pub/releases/libkolab-([0-9\.]+)\.tar\.gz\.gpg
