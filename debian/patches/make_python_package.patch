@@ -4,9 +4,9 @@ Description: Add __init__ file to make kolab a valid python package
  it could be an empty file if included in git.
 Index: libkolab/CMakeLists.txt
 ===================================================================
---- libkolab.orig/CMakeLists.txt	2015-11-20 21:17:36.405667632 +0100
-+++ libkolab/CMakeLists.txt	2015-11-20 21:17:36.401667609 +0100
-@@ -202,6 +202,11 @@
+--- libkolab.orig/CMakeLists.txt	2015-12-14 18:50:35.206301808 +0100
++++ libkolab/CMakeLists.txt	2015-12-14 18:50:35.202301788 +0100
+@@ -204,6 +204,11 @@
  if(PYTHON_BINDINGS)
      generatePythonBindings(shared shared.i)
      add_subdirectory(kolabformat/python)
@@ -21,7 +21,7 @@ Index: libkolab/CMakeLists.txt
 Index: libkolab/__init__.py
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ libkolab/__init__.py	2015-11-20 21:17:36.401667609 +0100
++++ libkolab/__init__.py	2015-12-14 18:50:35.202301788 +0100
 @@ -0,0 +1,2 @@
 +# Needed to make python package
 +

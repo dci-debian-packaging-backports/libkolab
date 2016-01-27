@@ -29,6 +29,7 @@
 #include "libkolab-version.h"
 #include <QString>
 #include <QtGlobal>
+#include <KRandom>
 #include <boost/algorithm/string/predicate.hpp>
 
 
@@ -373,7 +374,7 @@ QVariant MIMEObject::Private::parseMimeMessage(const KMime::Message::Ptr &msg)
     }
     Kolab::ObjectType objectType = InvalidObject;
     if (mOverrideObjectType == InvalidObject) {
-        if (KMime::Headers::Base *xKolabHeader = msg->getHeaderByType(X_KOLAB_TYPE_HEADER)) {
+        if (KMime::Headers::Base *xKolabHeader = msg->headerByType(X_KOLAB_TYPE_HEADER)) {
             objectType = getObjectType(xKolabHeader->asUnicodeString().trimmed().toStdString());
         } else {
             Warning() << "could not find the X-Kolab-Type Header, trying autodetection" ;
@@ -390,10 +391,10 @@ QVariant MIMEObject::Private::parseMimeMessage(const KMime::Message::Ptr &msg)
     }
 
     if (!mDoOverrideVersion) {
-        KMime::Headers::Base *xKolabVersion = msg->getHeaderByType(X_KOLAB_MIME_VERSION_HEADER);
+        KMime::Headers::Base *xKolabVersion = msg->headerByType(X_KOLAB_MIME_VERSION_HEADER);
         if (!xKolabVersion) {
             //For backwards compatibility to development versions, can be removed in future versions
-            xKolabVersion = msg->getHeaderByType(X_KOLAB_MIME_VERSION_HEADER_COMPAT);
+            xKolabVersion = msg->headerByType(X_KOLAB_MIME_VERSION_HEADER_COMPAT);
         }
         if (!xKolabVersion || xKolabVersion->asUnicodeString() == KOLAB_VERSION_V2) {
             mVersion = KolabV2;
@@ -440,7 +441,7 @@ void MIMEObject::setVersion(Version version)
 
 static std::string createCid()
 {
-    return QString::fromLatin1("cid:%1@%2").arg(QString::fromLatin1(KMime::uniqueString())).arg("kolab.resource.akonadi").toStdString();
+    return QString::fromLatin1("cid:%1@%2").arg(KRandom::randomString(16)).arg("kolab.resource.akonadi").toStdString();
 }
 
 std::vector<Kolab::Attachment> convertToReferences(const std::vector<Kolab::Attachment> &attachments, std::vector<std::string> &attachmentCids)

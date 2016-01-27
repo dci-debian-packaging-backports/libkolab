@@ -488,7 +488,9 @@ KContacts::Addressee toKABC(const Kolab::Contact &contact)
       addressee.setTitle(fromStdString(contact.titles().at(0))); //TODO support multiple
   }
   if (!contact.urls().empty()) {
-      addressee.setUrl(QUrl(fromStdString(contact.urls().at(0).url()))); //TODO support multiple
+      KContacts::ResourceLocatorUrl url;
+      url.setUrl(QUrl(fromStdString(contact.urls().at(0).url()))); //TODO support multiple
+      addressee.setUrl(url);
       foreach(const Kolab::Url &u, contact.urls()) {
           if (u.type() == Kolab::Url::Blog) {
               addressee.insertCustom("KADDRESSBOOK", "BlogFeed", fromStdString(u.url()));
@@ -664,8 +666,8 @@ Kolab::Contact fromKABC(const KContacts::Addressee &addressee)
     }
     
     std::vector<Kolab::Url> urls;
-    if (!addressee.url().isEmpty()) {
-        urls.push_back(Kolab::Url(toStdString(addressee.url().url())));
+    if (!addressee.url().url().isEmpty()) {
+        urls.push_back(Kolab::Url(toStdString(addressee.url().url().url())));
     }   
     const QString &blogUrl = addressee.custom(QLatin1String("KADDRESSBOOK"), QLatin1String("BlogFeed"));
     if (!blogUrl.isEmpty()) {
@@ -703,7 +705,7 @@ Kolab::Contact fromKABC(const KContacts::Addressee &addressee)
         c.setRelateds(std::vector<Kolab::Related>() << Kolab::Related(Kolab::Related::Text, toStdString(spouse), Kolab::Related::Spouse));
     }
     c.setBDay(fromDate(KDateTime(addressee.birthday(), KDateTime::ClockTime)));
-    c.setAnniversary(fromDate(KDateTime(QDate::fromString( addressee.custom(QLatin1String("KADDRESSBOOK"), QLatin1String("X-Anniversary")), Qt::ISODate ), KDateTime::ClockTime)));
+    c.setAnniversary(fromDate(KDateTime(QDate::fromString( addressee.custom(QLatin1String("KADDRESSBOOK"), QLatin1String("X-Anniversary")), Qt::ISODate ), KDateTime::Spec(KDateTime::ClockTime))));
     if (!addressee.photo().isEmpty()) {
         std::string mimetype;
         const std::string &photo = fromPicture(addressee.photo(), mimetype);
