@@ -1,18 +1,27 @@
 libkolab (1.0.2-1) UNRELEASED; urgency=medium
 
+  * New upstream release.
+  * Bump build deps to 15.12, because newer kmime is needed
+  * remove patch to compile with 15.08
+
+ -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 27 Jan 2016 13:59:00 +0100
+
+libkolab (1.0.0-1) experimental; urgency=medium
+
   [Sandro Knauß]
   * New upstream release.
   * Updated patch hunks.
   * Delete unused lintian overrides.
   * Use symbolfiles instead of shlibs.
   * Add breaks/replaces for libkolab0v5
-  * Bump build deps to 15.12, because newer kmime is needed
   
   [Harald Sitter]
   * Updated dependencies using Qt5 and KF5.
   * Sobump from 0 to 1 (rename package accordingly)
+  * Import upstream commits to fix compatibility with KDE Applications 15.08
+    - upstream_Fix-build-with-Qt-5.5-and-also-adjust-to-the-latest-.patch
 
- -- Sandro Knauß <bugs@sandroknauss.de>  Mon, 14 Dec 2015 18:53:23 +0100
+ -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 25 Nov 2015 00:52:31 +0100
 
 libkolab (0.6.0-2) unstable; urgency=medium
 
