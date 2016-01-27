@@ -3,6 +3,7 @@ libkolab (1.0.2-1) UNRELEASED; urgency=medium
   * New upstream release.
   * Bump build deps to 15.12, because newer kmime is needed
   * remove patch to compile with 15.08
+  * update symbols
 
  -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 27 Jan 2016 13:59:00 +0100
 
