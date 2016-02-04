@@ -2,4 +2,3 @@ make_python_package.patch
 disable-rpath.patch
 add-linker-flags.patch
 0001-Allow-KDateTime-with-only-valid-date.patch
-use-phpconfig-to-detect-phpincludedir.patch

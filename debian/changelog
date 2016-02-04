@@ -1,4 +1,4 @@
-libkolab (1.0.2-1) unstable; urgency=low
+libkolab (1.0.2-1) experimental; urgency=medium
 
   [ Sandro Knauß ]
   * New upstream release.
@@ -6,13 +6,7 @@ libkolab (1.0.2-1) unstable; urgency=low
   * remove patch to compile with 15.08
   * update symbols
 
-  [ Diane Trout ]
-  * Bump libkf5akonadi-dev and notes-dev build deps to 4:15.12
-
-  [ Maximiliano Curia ]
-  * Update symbols files.
-
- -- Maximiliano Curia <maxy@debian.org>  Wed, 06 Jul 2016 23:33:19 +0200
+ -- Diane Trout <diane@ghic.org>  Wed, 03 Feb 2016 23:37:04 -0800
 
 libkolab (1.0.0-1) experimental; urgency=medium
 
@@ -22,7 +16,7 @@ libkolab (1.0.0-1) experimental; urgency=medium
   * Delete unused lintian overrides.
   * Use symbolfiles instead of shlibs.
   * Add breaks/replaces for libkolab0v5
-
+  
   [Harald Sitter]
   * Updated dependencies using Qt5 and KF5.
   * Sobump from 0 to 1 (rename package accordingly)
@@ -30,19 +24,6 @@ libkolab (1.0.0-1) experimental; urgency=medium
     - upstream_Fix-build-with-Qt-5.5-and-also-adjust-to-the-latest-.patch
 
  -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 25 Nov 2015 00:52:31 +0100
-
-libkolab (0.6.0-3) unstable; urgency=medium
-
-  [ Sandro Knauß ]
-  * Check gpg signature for upstream tarballs
-  * Fixes postrm, that breaks upgrading package. (Closes: #817808)
-
-  [ Diane Trout ]
-  * change my email address back to personal
-  * Update Standards-Version to 3.9.8. No changes needed
-  * Use secure URLs for Vcs-*
-
- -- Diane Trout <diane@ghic.org>  Thu, 14 Apr 2016 20:14:23 -0700
 
 libkolab (0.6.0-2) unstable; urgency=medium
 

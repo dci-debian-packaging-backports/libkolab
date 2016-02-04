@@ -7,7 +7,6 @@ Uploaders: Paul Klos <kolab@klos2day.nl>,
            Sandro Knauß <bugs@sandroknauss.de>
 Build-Depends: cmake,
                debhelper (>= 9),
-               dh-python,
                libboost-program-options-dev,
                libboost-thread-dev,
                libcurl4-gnutls-dev,
@@ -23,14 +22,13 @@ Build-Depends: cmake,
                php5-dev (>= 5.3),
                pkg-kde-tools (>= 0.12),
                python-dev (>= 2.7),
-               python3-dev,
                qtbase5-dev,
                swig
 X-Python-Version: >= 2.7
-Standards-Version: 3.9.8
+Standards-Version: 3.9.6
 Homepage: http://git.kolab.org/libkolab
-Vcs-Git: https://anonscm.debian.org/git/pkg-kolab/libkolab.git
-Vcs-Browser: https://anonscm.debian.org/gitweb/?p=pkg-kolab/libkolab.git
+Vcs-Git: git://anonscm.debian.org/pkg-kolab/libkolab.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-kolab/libkolab.git
 
 Package: libkolab1
 Architecture: any
@@ -75,30 +73,12 @@ Depends: libkolab1 (= ${binary:Version}),
          ${misc:Depends},
          ${python:Depends},
          ${shlibs:Depends}
-Description: Python 2 bindings for Kolab Library
+Description: Python bindings for Kolab Library
  This package provides the Kolab Python modules icalendar and calendaring.
  .
   - The calendaring module provides some general calendaring functions
   - The icalendar module exposes iCalendar functionality:
     iCal reading/writing, iTip, iMip.
- .
- This contains the Python 2 bindings.
-
-Package: python3-kolab
-Architecture: any
-Section: python
-Depends: libkolab1 (= ${binary:Version}),
-         ${python3:Depends},
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: Python 3 bindings for Kolab Library
- This package provides the Kolab Python modules icalendar and calendaring.
- .
-  - The calendaring module provides some general calendaring functions
-  - The icalendar module exposes iCalendar functionality:
-    iCal reading/writing, iTip, iMip.
- .
- This contains the Python 3 bindings.
 
 Package: libkolab-dev
 Section: libdevel
