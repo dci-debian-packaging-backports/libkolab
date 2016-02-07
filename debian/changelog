@@ -1,9 +1,13 @@
 libkolab (1.0.2-1) UNRELEASED; urgency=medium
 
+  [ Sandro Knauß ]
   * New upstream release.
   * Bump build deps to 15.12, because newer kmime is needed
   * remove patch to compile with 15.08
   * update symbols
+
+  [ Diane Trout ]
+  * Bump libkf5akonadi-dev and notes-dev build deps to 4:15.12
 
  -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 27 Jan 2016 13:59:00 +0100
 
