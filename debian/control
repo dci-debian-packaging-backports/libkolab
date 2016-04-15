@@ -20,8 +20,8 @@ Build-Depends: cmake,
 X-Python-Version: >= 2.7
 Standards-Version: 3.9.8
 Homepage: http://git.kolab.org/libkolab
-Vcs-Git: git://anonscm.debian.org/pkg-kolab/libkolab.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-kolab/libkolab.git
+Vcs-Git: https://anonscm.debian.org/git/pkg-kolab/libkolab.git
+Vcs-Browser: https://anonscm.debian.org/gitweb/?p=pkg-kolab/libkolab.git
 
 Package: libkolab0v5
 Architecture: any
