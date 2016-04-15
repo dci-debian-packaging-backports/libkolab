@@ -1,3 +1,16 @@
+libkolab (0.6.0-3) unstable; urgency=medium
+
+  [ Sandro Knauß ]
+  * Check gpg signature for upstream tarballs
+  * Fixes postrm, that breaks upgrading package. (Closes: #817808)
+
+  [ Diane Trout ]
+  * change my email address back to personal
+  * Update Standards-Version to 3.9.8. No changes needed
+  * Use secure URLs for Vcs-*
+
+ -- Diane Trout <diane@ghic.org>  Thu, 14 Apr 2016 20:14:23 -0700
+
 libkolab (0.6.0-2) unstable; urgency=medium
 
   * Update libkolabxml's build dependency to 1.1.1 to pick up the new
