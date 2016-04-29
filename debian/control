@@ -6,6 +6,7 @@ Uploaders: Paul Klos <kolab@klos2day.nl>, Diane Trout <diane@ghic.org>, Sandro K
 Build-Depends: cmake,
                libqt4-dev,
                debhelper (>= 9),
+               dh-python,
                pkg-kde-tools (>= 0.12),
                libkolabxml-dev (>= 1.1.1),
                libboost-program-options-dev,
@@ -16,6 +17,7 @@ Build-Depends: cmake,
                php5-dev (>= 5.3),
                php5-cli,
                python-dev (>= 2.7),
+               python3-dev (>= 3.5),
                kdepimlibs5-dev (>= 4:4.10.0),
 X-Python-Version: >= 2.7
 Standards-Version: 3.9.8
@@ -66,12 +68,30 @@ Depends: libkolab0v5 (= ${binary:Version}),
          ${python:Depends},
          ${misc:Depends},
          ${shlibs:Depends}
-Description: Python bindings for Kolab Library
+Description: Python 2 bindings for Kolab Library
  This package provides the Kolab Python modules icalendar and calendaring.
  .
   - The calendaring module provides some general calendaring functions
   - The icalendar module exposes iCalendar functionality:
     iCal reading/writing, iTip, iMip.
+ .
+ This contains the Python 2 bindings.
+
+Package: python3-kolab
+Architecture: any
+Section: python
+Depends: libkolab0v5 (= ${binary:Version}),
+         ${python3:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Python 3 bindings for Kolab Library
+ This package provides the Kolab Python modules icalendar and calendaring.
+ .
+  - The calendaring module provides some general calendaring functions
+  - The icalendar module exposes iCalendar functionality:
+    iCal reading/writing, iTip, iMip.
+ .
+ This contains the Python 3 bindings.
 
 Package: libkolab-dev
 Section: libdevel
