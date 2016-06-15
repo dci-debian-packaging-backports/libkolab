@@ -2,7 +2,6 @@
 
 include /usr/share/dpkg/architecture.mk
 
-PHPAPI := $(shell php-config --phpapi)
 PYTHON_SITEARCH := $(shell python -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')
 
 export DH_VERBOSE=1
@@ -14,18 +13,10 @@ export DEB_LDFLAGS_MAINT_APPEND="-Wl,--as-needed"
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		-DPHP_BINDINGS=ON \
-		-DPHP_INSTALL_DIR=/usr/lib/php5/$(PHPAPI)/ \
-		-DPHP_EXECUTABLE=/usr/bin/php5 \
-		-DPHP_INCLUDE_PATH=/usr/include/php5/ \
 		-DPYTHON_BINDINGS=ON \
 		-DPYTHON_INSTALL_DIR=$(PYTHON_SITEARCH) \
 		-DPYTHON_INCLUDE_DIR=/usr/include/python2.7 \
 		-DPYTHON_LIBRARY=/usr/lib/$(DEB_BUILD_MULTIARCH)/libpython2.7.so
-
-override_dh_gencontrol:
-	echo "php:Depends=phpapi-${PHPAPI}" >> debian/php-kolab.substvars
-	dh_gencontrol
 
 override_dh_install:
 	# Install the packages
