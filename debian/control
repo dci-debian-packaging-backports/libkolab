@@ -86,7 +86,7 @@ Description: Python 2 bindings for Kolab Library
 Package: python3-kolab
 Architecture: any
 Section: python
-Depends: libkolab0v5 (= ${binary:Version}),
+Depends: libkolab1 (= ${binary:Version}),
          ${python3:Depends},
          ${misc:Depends},
          ${shlibs:Depends}
