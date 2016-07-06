@@ -19,7 +19,6 @@
 #include "calendaringtest.h"
 
 #include <QTest>
-#include <ksystemtimezone.h>
 #include <kolabevent.h>
 #include <iostream>
 #include <calendaring/calendaring.h>
@@ -44,7 +43,6 @@ void compareEvents(const std::vector<Kolab::Event> &list1, const std::vector<Kol
 
 void CalendaringTest::initTestCase()
 {
-    QVERIFY2(KSystemTimeZones::isTimeZoneDaemonAvailable(), "Timezone support is required for this test. Either use libcalendaring or make sure KTimeZoned is available");
 }
 
 void CalendaringTest::testCalendaringEvent()

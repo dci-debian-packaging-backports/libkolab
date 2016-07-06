@@ -2,5 +2,3 @@ make_python_package.patch
 disable-rpath.patch
 add-linker-flags.patch
 0001-Allow-KDateTime-with-only-valid-date.patch
-0002-Make-libkolab-compile-with-upstream-kdepimlibs.patch
-use-phpconfig-to-detect-phpincludedir.patch

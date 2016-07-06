@@ -43,7 +43,7 @@
 #include <QColor>
 #include <qdom.h>
 
-namespace KABC {
+namespace KContacts {
   class Addressee;
   class ContactGroup;
 }
@@ -130,16 +130,16 @@ protected:
   void saveTo( const KCalCore::Incidence::Ptr & ) const;
 
   /// Read all known fields from this contact
-  void setFields( const KABC::Addressee* );
+  void setFields( const KContacts::Addressee* );
 
   /// Save all known fields into this contact
-  void saveTo( KABC::Addressee* ) const;
+  void saveTo( KContacts::Addressee* ) const;
 
   /// Read all known fields from this contact group
-  void setFields( const KABC::ContactGroup* );
+  void setFields( const KContacts::ContactGroup* );
 
   /// Save all known fields into this contact groupd
-  void saveTo( KABC::ContactGroup* ) const;
+  void saveTo( KContacts::ContactGroup* ) const;
 
   // This just makes the initial dom tree with version and doctype
   static QDomDocument domTree();

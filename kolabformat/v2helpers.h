@@ -30,7 +30,12 @@
 #include "mime/mimeutils.h"
 #include "kolabformat/errorhandler.h"
 
-#include <kabc/contactgroup.h>
+#include <kcontacts/contactgroup.h>
+#include <kcontacts/addressee.h>
+#include <kcalcore/incidence.h>
+#include <kcalcore/event.h>
+#include <kdatetime.h>
+#include <kmime/kmime_message.h>
 
 #include <qdom.h>
 #include <qbuffer.h>
@@ -59,6 +64,8 @@ static KCalPtr fromXML(const QByteArray &xmlData, QStringList &attachments)
     return i;
 }
 
+void getAttachments(KCalCore::Incidence::Ptr incidence, const QStringList &attachments, const KMime::Message::Ptr &mimeData);
+
 template <typename IncidencePtr, typename Converter>
 static inline IncidencePtr incidenceFromKolabImpl( const KMime::Message::Ptr &data, const QByteArray &mimetype, const QString &timezoneId )
 {
@@ -71,17 +78,17 @@ static inline IncidencePtr incidenceFromKolabImpl( const KMime::Message::Ptr &da
     
     QStringList attachments;
     IncidencePtr ptr = fromXML<IncidencePtr, Converter>(xmlData, attachments); //TODO do we care about timezone?
-    Mime::getAttachments(ptr, attachments, data);
+    getAttachments(ptr, attachments, data);
     
     return ptr;
 }
 
-KABC::Addressee addresseeFromKolab( const QByteArray &xmlData, const KMime::Message::Ptr &data);
-KABC::Addressee addresseeFromKolab( const QByteArray &xmlData, QString &pictureAttachmentName, QString &logoAttachmentName, QString &soundAttachmentName);
+KContacts::Addressee addresseeFromKolab( const QByteArray &xmlData, const KMime::Message::Ptr &data);
+KContacts::Addressee addresseeFromKolab( const QByteArray &xmlData, QString &pictureAttachmentName, QString &logoAttachmentName, QString &soundAttachmentName);
 
 KMime::Message::Ptr contactToKolabFormat(const KolabV2::Contact& contact, const QString &productId);
 
-KABC::ContactGroup contactGroupFromKolab(const QByteArray &xmlData);
+KContacts::ContactGroup contactGroupFromKolab(const QByteArray &xmlData);
 
 KMime::Message::Ptr distListToKolabFormat(const KolabV2::DistributionList& distList, const QString &productId);
 KMime::Message::Ptr noteFromKolab(const QByteArray &xmlData, const KDateTime &creationDate);

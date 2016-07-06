@@ -21,13 +21,12 @@
 #include "imip.h"
 
 #include <kcalutils/incidenceformatter.h>
-#include <kpimutils/email.h>
+#include <KEmailAddress>
 #include <kmime/kmime_message.h>
 #include <QDebug>
-// #include <klocalizedstring.h>
-#include <ksystemtimezone.h>
-#include <kdebug.h>
-
+#include <QTime>
+#include <QTimeZone>
+#include <KTimeZone>
 /*
  * The code in here is copy paste work from kdepim/calendarsupport.
  *
@@ -53,7 +52,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
   if ( to.isEmpty() ) {
     to = from;
   }
-  kDebug() << "\nFrom:" << from
+  qDebug() << "\nFrom:" << from
            << "\nTo:" << to
            << "\nCC:" << cc
            << "\nSubject:" << subject << "\nBody: \n" << body
@@ -74,7 +73,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
   if( bccMe ) {
     message->bcc()->fromUnicodeString( from, "utf-8" ); //from==me, right?
   }
-  message->date()->setDateTime( KDateTime::currentLocalDateTime() );
+  message->date()->setDateTime( KDateTime::currentLocalDateTime().dateTime() );
   message->subject()->fromUnicodeString( subject, "utf-8" );
 
   if ( outlookConformInvitation ) {
@@ -85,7 +84,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
 
     if ( !attachment.isEmpty() ) {
       KMime::Headers::ContentDisposition *disposition =
-        new KMime::Headers::ContentDisposition( message.get() );
+        new KMime::Headers::ContentDisposition();
       disposition->setDisposition( KMime::Headers::CDinline );
       message->setHeader( disposition );
       message->contentTransferEncoding()->setEncoding( KMime::Headers::CEquPr );
@@ -104,7 +103,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
     // Set the first multipart, the body message.
     KMime::Content *bodyMessage = new KMime::Content;
     KMime::Headers::ContentDisposition *bodyDisposition =
-      new KMime::Headers::ContentDisposition( bodyMessage );
+      new KMime::Headers::ContentDisposition();
     bodyDisposition->setDisposition( KMime::Headers::CDinline );
     bodyMessage->contentType()->setMimeType( "text/plain" );
     bodyMessage->contentType()->setCharset( "utf-8" );
@@ -116,7 +115,7 @@ KMime::Message::Ptr createMessage( const QString &from, const QString &_to,
     if ( !attachment.isEmpty() ) {
       KMime::Content *attachMessage = new KMime::Content;
       KMime::Headers::ContentDisposition *attachDisposition =
-        new KMime::Headers::ContentDisposition( attachMessage );
+        new KMime::Headers::ContentDisposition();
       attachDisposition->setDisposition( KMime::Headers::CDattachment );
       attachMessage->contentType()->setMimeType( "text/calendar" );
       attachMessage->contentType()->setCharset( "utf-8" );
@@ -143,7 +142,7 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
 {
   KCalCore::Attendee::List attendees = incidence->attendees();
   if ( attendees.isEmpty() ) {
-    kWarning() << "There are no attendees to e-mail";
+    qWarning() << "There are no attendees to e-mail";
     return QByteArray();
   }
 
@@ -170,10 +169,10 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
 
     // Build a nice address for this attendee including the CN.
     QString tname, temail;
-    const QString username = KPIMUtils::quoteNameIfNecessary( a->name() );
+    const QString username =  KEmailAddress::quoteNameIfNecessary( a->name() );
     // ignore the return value from extractEmailAddressAndName() because
     // it will always be false since tusername does not contain "@domain".
-    KPIMUtils::extractEmailAddressAndName( username, temail/*byref*/, tname/*byref*/ );
+    KEmailAddress::extractEmailAddressAndName( username, temail/*byref*/, tname/*byref*/ );
     tname += QLatin1String( " <" ) + email + QLatin1Char( '>' );
 
     // Optional Participants and Non-Participants are copied on the email
@@ -186,7 +185,7 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
   }
   if( toList.isEmpty() && ccList.isEmpty() ) {
     // Not really to be called a groupware meeting, eh
-    kWarning() << "There are really no attendees to e-mail";
+    qWarning() << "There are really no attendees to e-mail";
     return QByteArray();
   }
   QString to;
@@ -207,7 +206,7 @@ QByteArray mailAttendees( const KCalCore::IncidenceBase::Ptr &incidence,
   }
 
   const QString body =
-    KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KSystemTimeZones::local() );
+    KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KTimeZone(QTimeZone::systemTimeZoneId()) );
 
   return createMessage(/* identity, */from, to, cc, subject, body, false,
                bccMe, attachment/*, mailTransport */)->encodedContent();
@@ -231,7 +230,7 @@ QByteArray mailOrganizer( const KCalCore::IncidenceBase::Ptr &incidence,
     subject = QString( "Free Busy Message" );
   }
 
-  QString body = KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KSystemTimeZones::local() );
+  QString body = KCalUtils::IncidenceFormatter::mailBodyStr( incidence, KTimeZone(QTimeZone::systemTimeZoneId()) );
 
   return createMessage( /*identity, */from, to, QString(), subject, body, false,
                bccMe, attachment/*, mailTransport */)->encodedContent();

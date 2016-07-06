@@ -26,7 +26,7 @@
 #include <kcalcore/event.h>
 #include <kcalcore/todo.h>
 #include <kcalcore/journal.h>
-#include <kabc/addressee.h>
+#include <kcontacts/addressee.h>
 
 #include <kolabformat.h>
 
@@ -45,14 +45,6 @@ Q_DECLARE_METATYPE(KCalCore::Event);
 Q_DECLARE_METATYPE(KCalCore::Todo);
 Q_DECLARE_METATYPE(KCalCore::Journal);
 
-#if KDEPIMLIBS_VERSION_MAJOR <= 4
-#if KDEPIMLIBS_VERSION_MINOR <= 11
-#if KDEPIMLIBS_VERSION_PATCH < 52
-Q_DECLARE_METATYPE(KCalCore::Duration);
-#endif
-#endif
-#endif
-
 namespace QTest {
     
     template<>
@@ -61,7 +53,7 @@ namespace QTest {
         QByteArray ba = "Kolab::cDateTime(";
         ba += QByteArray::number(dt.year()) + ", " + QByteArray::number(dt.month())+ ", " + QByteArray::number(dt.day()) + ", ";
         ba += QByteArray::number(dt.hour()) + ", " + QByteArray::number(dt.minute()) + ", " + QByteArray::number(dt.second())+ ", ";
-        ba += QString(dt.isUTC()?QString("UTC"):QString("TZ: "+QString::fromStdString(dt.timezone()))).toAscii();
+        ba += QByteArray(dt.isUTC()?QByteArray("UTC"):QByteArray("TZ: "+QByteArray::fromStdString(dt.timezone())));
         ba += ")";
         return qstrdup(ba.data());
     }
@@ -71,7 +63,7 @@ namespace QTest {
     {
         QByteArray ba = "KDateTime(";
         ba += dt.toString().toAscii();
-        ba += dt.timeZone().name();
+        ba += dt.timeZone().name().toAscii();
         ba += ")";
         return qstrdup(ba.data());
     }
@@ -82,9 +74,9 @@ namespace QTest {
         QByteArray ba = "Attendee(";
         ba += at.name().toAscii() + ", ";
         ba += at.email().toAscii() + ", ";
-        ba += QString::number(at.role()) + ", ";
-        ba += QString::number(at.status()) + ", ";
-        ba += QString::number(at.RSVP()) + ", ";
+        ba += QByteArray::number(at.role()) + ", ";
+        ba += QByteArray::number(at.status()) + ", ";
+        ba += QByteArray::number(at.RSVP()) + ", ";
         ba += at.delegate().toAscii() + ", ";
         ba += at.delegator().toAscii() + ", ";
         ba += at.uid().toAscii() + ", ";
@@ -98,7 +90,7 @@ namespace QTest {
     {
         QByteArray ba = "QList<int>(";
         foreach(int i, l) {
-            ba += QString::number(i) + ", ";
+            ba += QByteArray::number(i) + ", ";
         }
         ba += ")";
         return qstrdup(ba.data());
@@ -109,8 +101,8 @@ namespace QTest {
     {
         QByteArray ba = "QList<int>(";
         foreach(const KCalCore::RecurrenceRule::WDayPos &i, l) {
-            ba += QString::number(i.pos()) + " ";
-            ba += QString::number(i.day()) + ", ";
+            ba += QByteArray::number(i.pos()) + " ";
+            ba += QByteArray::number(i.day()) + ", ";
         }
         ba += ")";
         return qstrdup(ba.data());
@@ -121,7 +113,7 @@ namespace QTest {
     {
         QByteArray ba = "KCalCore::DateList(";
         foreach(const QDate &i, l) {
-            ba += i.toString();
+            ba += i.toString().toLatin1();
         }
         ba += ")";
         return qstrdup(ba.data());
@@ -141,7 +133,7 @@ namespace QTest {
     template<>
     char *toString(const KCalCore::Recurrence &at)
     {
-        at.dump();
+        // at.dump();
         KCalCore::RecurrenceRule *r = at.defaultRRule();
         QByteArray ba;
         if (!r) {
@@ -151,9 +143,9 @@ namespace QTest {
             Q_ASSERT(at.rRules().size() == 1);
 
             ba += "Recurrence(";
-            ba += QString::number(r->recurrenceType()) + "\n";
-            ba += QString::number(r->frequency()) + "\n";
-            ba += QString::number(r->duration()) + "\n";
+            ba += QByteArray::number(r->recurrenceType()) + "\n";
+            ba += QByteArray::number(r->frequency()) + "\n";
+            ba += QByteArray::number(r->duration()) + "\n";
             ba += QByteArray(toString(r->startDt())) + "\n";
             ba += QByteArray(toString(r->endDt())) + "\n";
             ba += QByteArray(toString(r->bySeconds())) + "\n";
@@ -178,10 +170,10 @@ namespace QTest {
     {
         QByteArray ba;
         ba += "KolabRecurrenceRule(";
-        ba += QString::number(at.weekStart()) + "\n";
-        ba += QString::number(at.frequency()) + "\n";
-        ba += QString::number(at.interval()) + "\n";
-        ba += QString::number(at.count()) + "\n";
+        ba += QByteArray::number(at.weekStart()) + "\n";
+        ba += QByteArray::number(at.frequency()) + "\n";
+        ba += QByteArray::number(at.interval()) + "\n";
+        ba += QByteArray::number(at.count()) + "\n";
         ba += QByteArray(toString(at.end())) + "\n";
         ba += QByteArray(toString(at.bysecond())) + "\n";
         ba += QByteArray(toString(at.byminute())) + "\n";
@@ -200,8 +192,8 @@ namespace QTest {
     {
         QByteArray ba;
         ba += "KCalCore::Duration(";
-        ba += QString::number(d.isDaily()) + ", ";
-        ba += QString::number(d.value()) + " ";
+        ba += QByteArray::number(d.isDaily()) + ", ";
+        ba += QByteArray::number(d.value()) + " ";
         ba += ")";
         return qstrdup(ba.data());
     }
@@ -210,9 +202,9 @@ namespace QTest {
     char *toString(const Kolab::ContactReference &a)
     {
         QByteArray ba = "Kolab::ContactReference(";
-        ba += QString::fromStdString(a.email()).toAscii()+ ", ";
-        ba += QString::fromStdString(a.name()).toAscii()+ ", ";
-        ba += QString::fromStdString(a.uid()).toAscii();
+        ba += QByteArray::fromStdString(a.email()) + ", ";
+        ba += QByteArray::fromStdString(a.name()) + ", ";
+        ba += QByteArray::fromStdString(a.uid());
         ba += ")";
         return qstrdup(ba.data());
     }
@@ -232,12 +224,12 @@ namespace QTest {
     char *toString(const Kolab::Attendee &a)
     {
         QByteArray ba = "Kolab::Attendee(";
-        ba += QString::fromStdString(a.contact().email()).toAscii() + "\n";
-        ba += QString::fromStdString(a.contact().name()).toAscii()+ "\n";
+        ba += QByteArray::fromStdString(a.contact().email()) + "\n";
+        ba += QByteArray::fromStdString(a.contact().name()) + "\n";
         ba += QByteArray::number(a.partStat()) + "\n";
         ba += QByteArray::number(a.role())  + "\n";
         ba += QByteArray::number(a.rsvp())  + "\n";
-        ba += QString::fromStdString(a.contact().uid()).toAscii()+"\n";
+        ba += QByteArray::fromStdString(a.contact().uid())+"\n";
         ba += QByteArray(toString(a.delegatedTo()))+"\n";
         ba += QByteArray(toString(a.delegatedFrom()))+ "\n";
         ba += QByteArray::number(a.cutype())+ "\n";
@@ -261,8 +253,8 @@ namespace QTest {
     char *toString(const Kolab::CustomProperty &a)
     {
         QByteArray ba = "Kolab::CustomProperty(";
-        ba += QString::fromStdString(a.identifier).toAscii()+ ", ";
-        ba += QString::fromStdString(a.value).toAscii();
+        ba += QByteArray::fromStdString(a.identifier) + ", ";
+        ba += QByteArray::fromStdString(a.value);
         ba += ")";
         return qstrdup(ba.data());
     }
@@ -303,10 +295,10 @@ namespace QTest {
     char *toString(const Kolab::FreebusyPeriod &p)
     {
         QByteArray ba = "Kolab::FreebusyPeriod(";
-        ba += QString::number(p.type())+ "\n";
-        ba += QString::fromStdString(p.eventUid())+ "\n";
-        ba += QString::fromStdString(p.eventLocation())+ "\n";
-        ba += QString::fromStdString(p.eventSummary())+ "\n";
+        ba += QByteArray::number(p.type())+ "\n";
+        ba += QByteArray::fromStdString(p.eventUid())+ "\n";
+        ba += QByteArray::fromStdString(p.eventLocation())+ "\n";
+        ba += QByteArray::fromStdString(p.eventSummary())+ "\n";
         ba += QByteArray(toString(p.periods()))+ "\n";
         ba += ")";
         return qstrdup(ba.data());
@@ -318,11 +310,11 @@ namespace QTest {
         QByteArray ba = "Kolab::Duration";
         ba += p.isNegative() ? "-": "+";
         ba += "(";
-        ba += QString::number(p.weeks())+ ", ";
-        ba += QString::number(p.days())+ ", ";
-        ba += QString::number(p.hours())+ ", ";
-        ba += QString::number(p.minutes())+ ", ";
-        ba += QString::number(p.seconds());
+        ba += QByteArray::number(p.weeks())+ ", ";
+        ba += QByteArray::number(p.days())+ ", ";
+        ba += QByteArray::number(p.hours())+ ", ";
+        ba += QByteArray::number(p.minutes())+ ", ";
+        ba += QByteArray::number(p.seconds());
         ba += ")";
         return qstrdup(ba.data());
     }

@@ -35,7 +35,7 @@
 #include "libkolab-version.h"
 
 #include <kcalcore/journal.h>
-#include <kdebug.h>
+#include <QDebug>
 
 using namespace KolabV2;
 
@@ -162,9 +162,9 @@ bool Note::loadXML( const QDomDocument& document )
       QDomElement e = n.toElement();
       if ( !loadAttribute( e ) )
         // TODO: Unhandled tag - save for later storage
-        kDebug() <<"Warning: Unhandled tag" << e.tagName();
+        qDebug() <<"Warning: Unhandled tag" << e.tagName();
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   return true;

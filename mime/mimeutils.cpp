@@ -19,10 +19,10 @@
 #include <quuid.h>
 #include <QtCore/qfile.h>
 #include <qdom.h>
-#include <kdebug.h>
-#include <kabc/addressee.h>
+#include <kdatetime.h>
 #include "kolabformat/kolabdefinitions.h"
 #include "kolabformat/errorhandler.h"
+#include <kolabformat.h>
 #include "libkolab-version.h"
 
 namespace Kolab {
@@ -65,7 +65,7 @@ KMime::Content* findContentById(const KMime::Message::Ptr &data, const QByteArra
     }
     Q_ASSERT(!data->contents().isEmpty());
     Q_FOREACH(KMime::Content *c, data->contents()) {
-//         kDebug() << "searching: " << c->contentID()->identifier();
+//         qDebug() << "searching: " << c->contentID()->identifier();
         if ( c->contentID()->identifier() == id ) {
             type = c->contentType()->mimeType();
             name = c->contentType()->name();
@@ -93,84 +93,35 @@ QString fromCid(const QString &cid)
     return cid.right(cid.size()-4);
 }
 
-KMime::Message::Ptr createMessage(const KCalCore::Incidence::Ptr &incidencePtr, const QString &mimetype, const QString &xKolabType, const QByteArray &xml, bool v3, const QString &productId)
+KMime::Message::Ptr createMessage(const QByteArray &mimetype, const QByteArray &xKolabType, const QByteArray &xml, bool v3, const QByteArray &productId,
+                                  const QByteArray &fromEmail, const QString &fromName, const QString &subject)
 {
-    KMime::Message::Ptr message = createMessage( xKolabType, v3, productId );
-    if (!incidencePtr) {
-        Error() << "invalid incidence passed  in";
-        message->assemble();
-        return message;
+    KMime::Message::Ptr message = createMessage(xKolabType, v3, productId);
+    message->subject()->fromUnicodeString(subject, "utf-8");
+    if (!fromEmail.isEmpty()) {
+        KMime::Types::Mailbox mb;
+        mb.setName(fromName);
+        mb.setAddress(fromEmail);
+        message->from()->addAddress(mb);
     }
-    if ( incidencePtr->organizer() && !incidencePtr->organizer()->email().isEmpty()) {
-        message->from()->addAddress( incidencePtr->organizer()->email().toUtf8(), incidencePtr->organizer()->name() );
-    }
-    message->subject()->fromUnicodeString( incidencePtr->uid(), "utf-8" );
-    
-    KMime::Content *content = createMainPart( mimetype, xml );
-    message->addContent( content );
-    
-    Q_FOREACH (KCalCore::Attachment::Ptr attachment, incidencePtr->attachments()) {
-        //Serialize the attachment as attachment with uri, referencing the created mime-part
-        if (v3 && !attachment->uri().contains("cid:")) {
-            //onyl by url, skip
-            continue;
-        }
-        message->addContent( createAttachmentPart(fromCid(attachment->uri()).toLatin1(), attachment->mimeType(), attachment->label(), attachment->decodedData() ) );
-    }
-    
-    message->assemble();
+    message->addContent(createMainPart(mimetype, xml));
     return message;
 }
 
-KMime::Message::Ptr createMessage(const KABC::Addressee &contact, const QString &mimetype, const QString &xKolabType, const QByteArray &xml, bool v3, const QString &prodid)
+KMime::Message::Ptr createMessage(const std::string &mimetype, const std::string &xKolabType, const std::string &xml, bool v3, const std::string &productId,
+                                  const std::string &fromEmail, const std::string &fromName, const std::string &subject)
 {
-    KMime::Message::Ptr message = Mime::createMessage( xKolabType, v3, prodid );
-    message->subject()->fromUnicodeString( contact.uid(), "utf-8" );
-    message->from()->fromUnicodeString( contact.fullEmail(), "utf-8" );
-    
-    KMime::Content* content = Mime::createMainPart( mimetype, xml );
-    message->addContent( content );
-
-// TODO add pictures as separate mimeparts
-//     if ( !contact.picture().isNull() ) {
-//         QByteArray pic;
-//         QBuffer buffer(&pic);
-//         buffer.open(QIODevice::WriteOnly);
-//         contact.picture().save(&buffer, "PNG");
-//         buffer.close();
-//         
-//         content = Mime::createAttachmentPart(QByteArray(), "image/png", "kolab-picture.png", pic );
-//         message->addContent(content);
-//     }
-//     
-//     if ( !contact.logo().isNull() ) {
-//         QByteArray pic;
-//         QBuffer buffer(&pic);
-//         buffer.open(QIODevice::WriteOnly);
-//         contact.logo().save(&buffer, "PNG");
-//         buffer.close();
-//         
-//         content = Mime::createAttachmentPart(QByteArray(), "image/png", "kolab-logo.png", pic );
-//         message->addContent(content);
-//     }
-//     
-//     if ( !contact.sound().isEmpty() ) {
-//         content = Mime::createAttachmentPart(QByteArray(), "audio/unknown", "sound", contact.sound() );
-//         message->addContent(content);
-//     }
-    
-    message->assemble();
-    return message;
+    return createMessage(QByteArray(mimetype.c_str()), QByteArray(xKolabType.c_str()), QByteArray(xml.c_str()), v3, QByteArray(productId.data()), QByteArray(fromEmail.c_str()), QString::fromStdString(fromName), QString::fromStdString(subject));
 }
 
 KMime::Message::Ptr createMessage(const QString &subject, const QString &mimetype, const QString &xKolabType, const QByteArray &xml, bool v3, const QString &prodid)
 {
-    KMime::Message::Ptr message = createMessage( xKolabType, v3, prodid );
+    KMime::Message::Ptr message = createMessage( xKolabType.toLatin1(), v3, prodid.toLatin1() );
     if (!subject.isEmpty()) {
         message->subject()->fromUnicodeString( subject, "utf-8" );
     }
     
-    KMime::Content *content = createMainPart( mimetype, xml );
+    KMime::Content *content = createMainPart( mimetype.toLatin1(), xml );
     message->addContent( content );
     
     message->assemble();
@@ -198,105 +149,86 @@ KMime::Content* createExplanationPart(bool v3)
 }
 
 
-KMime::Message::Ptr createMessage(const QString& xKolabType, bool v3, const QString &prodid)
+KMime::Message::Ptr createMessage(const QByteArray& xKolabType, bool v3, const QByteArray &prodid)
 {
-    KMime::Message::Ptr message( new KMime::Message );
-    message->date()->setDateTime( KDateTime::currentUtcDateTime() );
-    KMime::Headers::Generic *h = new KMime::Headers::Generic( X_KOLAB_TYPE_HEADER, message.get(), xKolabType, "utf-8" );
-    message->appendHeader( h );
+    KMime::Message::Ptr message(new KMime::Message);
+    message->date()->setDateTime(KDateTime::currentUtcDateTime().dateTime());
+    KMime::Headers::Generic* h = new KMime::Headers::Generic(X_KOLAB_TYPE_HEADER);
+    h->fromUnicodeString(xKolabType, "utf-8");
+    message->appendHeader(h);
     if (v3) {
-        KMime::Headers::Generic *vh = new KMime::Headers::Generic( X_KOLAB_MIME_VERSION_HEADER, message.get(), KOLAB_VERSION_V3, "utf-8" );
-        message->appendHeader( vh );
+        KMime::Headers::Generic* hv3 = new KMime::Headers::Generic(X_KOLAB_MIME_VERSION_HEADER);
+        hv3->fromUnicodeString(KOLAB_VERSION_V3, "utf-8");
+        message->appendHeader(hv3);
     }
-    message->userAgent()->from7BitString( prodid.toLatin1() );
-    message->contentType()->setMimeType( "multipart/mixed" );
-    message->contentType()->setBoundary( KMime::multiPartBoundary() );
-    
-    message->addContent( createExplanationPart(v3) );
+    message->userAgent()->from7BitString(prodid);
+    message->contentType()->setMimeType("multipart/mixed");
+    message->contentType()->setBoundary(KMime::multiPartBoundary());
+    message->addContent(createExplanationPart(v3));
     return message;
 }
 
 
-KMime::Content* createMainPart(const QString& mimeType, const QByteArray& decodedContent)
+KMime::Content* createMainPart(const QByteArray& mimeType, const QByteArray& decodedContent)
 {
     KMime::Content* content = new KMime::Content();
-    content->contentType()->setMimeType( mimeType.toLatin1() );
-    content->contentType()->setName( KOLAB_OBJECT_FILENAME, "us-ascii" );
+    content->contentType()->setMimeType(mimeType);
+    content->contentType()->setName(KOLAB_OBJECT_FILENAME, "us-ascii");
     content->contentTransferEncoding()->setEncoding( KMime::Headers::CEquPr );
     content->contentDisposition()->setDisposition( KMime::Headers::CDattachment );
     content->contentDisposition()->setFilename( KOLAB_OBJECT_FILENAME );
-    content->setBody( decodedContent );
+    content->setBody(decodedContent);
     return content;
 }
 
-KMime::Content* createAttachmentPart(const QByteArray& cid, const QString& mimeType, const QString& fileName, const QByteArray& decodedContent)
+KMime::Content* createAttachmentPart(const QByteArray& cid, const QByteArray& mimeType, const QString& fileName, const QByteArray& base64EncodedContent)
 {
     KMime::Content* content = new KMime::Content();
     if (!cid.isEmpty()) {
         content->contentID()->setIdentifier( cid );
     }
-    content->contentType()->setMimeType( mimeType.toLatin1() );
+    content->contentType()->setMimeType( mimeType );
     content->contentType()->setName( fileName, "utf-8" );
     content->contentTransferEncoding()->setEncoding( KMime::Headers::CEbase64 );
     content->contentDisposition()->setDisposition( KMime::Headers::CDattachment );
     content->contentDisposition()->setFilename( fileName );
-    content->setBody( decodedContent );
+    content->setBody( base64EncodedContent );
     return content;
 }
 
-void getAttachments(KCalCore::Incidence::Ptr incidence, const QStringList &attachments, const KMime::Message::Ptr &mimeData)
+Kolab::Attachment getAttachment(const std::string &id, const KMime::Message::Ptr &mimeData)
 {
-    if (!incidence) {
-        Error() << "Invalid incidence";
-        return;
+    if (!QString::fromStdString(id).contains("cid:")) {
+        Error() << "not a cid reference";
+        return Kolab::Attachment();
     }
-//     kDebug() << "getting " << attachments.size() << "attachments";
-//     kDebug() << mimeData->encodedContent();
-    foreach (const QString &name, attachments) {
-        QByteArray type;
-        KMime::Content *content = findContentByName(mimeData, name, type);
-        if (!content) { // guard against malformed events with non-existent attachments
-            Warning() << "could not find attachment: "<< name.toUtf8() << type;
-            continue;
-        }
-        const QByteArray c = content->decodedContent().toBase64();
-//         Debug() << c;
-        KCalCore::Attachment::Ptr attachment( new KCalCore::Attachment( c, QString::fromLatin1( type ) ) );
-        attachment->setLabel( name );
-        incidence->addAttachment(attachment);
-        Debug() << "ATTACHMENT NAME" << name << type;
+    QByteArray type;
+    QString name;
+    KMime::Content *content = findContentById(mimeData, fromCid(QString::fromStdString(id)).toLatin1(), type, name);
+    if (!content) { // guard against malformed events with non-existent attachments
+        Error() << "could not find attachment: "<< name << type;
+        return Kolab::Attachment();
     }
+    // Debug() << id << content->decodedContent().toBase64().toStdString();
+    Kolab::Attachment attachment;
+    attachment.setData(content->decodedContent().toStdString(), type.toStdString());
+    attachment.setLabel(name.toStdString());
+    return attachment;
 }
 
-void getAttachmentsById(KCalCore::Incidence::Ptr incidence, const KMime::Message::Ptr &mimeData)
+Kolab::Attachment getAttachmentByName(const QString &name, const KMime::Message::Ptr &mimeData)
 {
-    if (!incidence) {
-        Error() << "Invalid incidence";
-        return;
+    QByteArray type;
+    KMime::Content *content = findContentByName(mimeData, name, type);
+    if (!content) { // guard against malformed events with non-existent attachments
+        Warning() << "could not find attachment: "<< name.toUtf8() << type;
+        return Kolab::Attachment();
     }
-//     kDebug() << "getting " << attachments.size() << "attachments";
-//     kDebug() << mimeData->encodedContent();
-
-    foreach(KCalCore::Attachment::Ptr attachment, incidence->attachments()) {
-        Debug() << attachment->uri();
-        if (!attachment->uri().contains("cid:")) {
-            continue;
-        }
-        //It's a referenced attachmant, extract it
-        QByteArray type;
-        QString name;
-        KMime::Content *content = findContentById(mimeData, fromCid(attachment->uri()).toLatin1(), type, name);
-        if (!content) { // guard against malformed events with non-existent attachments
-            Error() << "could not find attachment: "<< name << type;
-            continue;
-        }
-        attachment->setUri(QString());
-        attachment->setData(content->decodedContent().toBase64());
-        attachment->setMimeType(type);
-        attachment->setLabel(name);
-    }
+    Kolab::Attachment attachment;
+    attachment.setData(content->decodedContent().toStdString(), type.toStdString());
+    attachment.setLabel(name.toStdString());
+    return attachment;
 }
-
 
 
 }; //Namespace

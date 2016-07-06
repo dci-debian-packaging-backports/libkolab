@@ -2,9 +2,11 @@ Author: Diane Trout <diane@ghic.org>
 Description: Add __init__ file to make kolab a valid python package
  The comment in __init__.py is just so quilt makes the file,
  it could be an empty file if included in git.
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -217,6 +217,11 @@
+Index: libkolab/CMakeLists.txt
+===================================================================
+--- libkolab.orig/CMakeLists.txt	2015-12-14 18:50:35.206301808 +0100
++++ libkolab/CMakeLists.txt	2015-12-14 18:50:35.202301788 +0100
+@@ -204,6 +204,11 @@
  if(PYTHON_BINDINGS)
      generatePythonBindings(shared shared.i)
      add_subdirectory(kolabformat/python)
@@ -16,8 +18,10 @@ Description: Add __init__ file to make kolab a valid python package
  endif(PYTHON_BINDINGS)
  
  if(PHP_BINDINGS)
---- /dev/null
-+++ b/__init__.py
+Index: libkolab/__init__.py
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ libkolab/__init__.py	2015-12-14 18:50:35.202301788 +0100
 @@ -0,0 +1,2 @@
 +# Needed to make python package
 +

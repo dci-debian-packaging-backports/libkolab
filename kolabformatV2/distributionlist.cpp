@@ -31,16 +31,16 @@
 
 #include "distributionlist.h"
 
-#include <kabc/addressee.h>
-#include <kabc/contactgroup.h>
-#include <kdebug.h>
+#include <kcontacts/addressee.h>
+#include <kcontacts/contactgroup.h>
+#include <QDebug>
 
 using namespace KolabV2;
 
 static const char* s_unhandledTagAppName = "KOLABUNHANDLED"; // no hyphens in appnames!
 
 // saving (contactgroup->xml)
-DistributionList::DistributionList( const KABC::ContactGroup* contactGroup )
+DistributionList::DistributionList( const KContacts::ContactGroup* contactGroup )
 {
   setFields( contactGroup );
 }
@@ -151,7 +151,7 @@ bool DistributionList::loadXML( const QDomDocument& document )
       QDomElement e = n.toElement();
       if ( !loadAttribute( e ) ) {
         // Unhandled tag - save for later storage
-        //kDebug() <<"Saving unhandled tag" << e.tagName();
+        //qDebug() <<"Saving unhandled tag" << e.tagName();
         Custom c;
         c.app = s_unhandledTagAppName;
         c.name = e.tagName();
@@ -159,7 +159,7 @@ bool DistributionList::loadXML( const QDomDocument& document )
         mCustomList.append( c );
       }
     } else
-      kDebug() <<"Node is not a comment or an element???";
+      qDebug() <<"Node is not a comment or an element???";
   }
 
   return true;
@@ -182,7 +182,7 @@ QString DistributionList::productID() const
 }
 
 // The saving is contactgroup -> DistributionList -> xml, this is the first part
-void DistributionList::setFields( const KABC::ContactGroup* contactGroup )
+void DistributionList::setFields( const KContacts::ContactGroup* contactGroup )
 {
   KolabBase::setFields( contactGroup );
 
@@ -190,7 +190,7 @@ void DistributionList::setFields( const KABC::ContactGroup* contactGroup )
 
   // explicit contact data
   for ( uint index = 0; index < contactGroup->dataCount(); ++index ) {
-    const KABC::ContactGroup::Data& data = contactGroup->data( index );
+    const KContacts::ContactGroup::Data& data = contactGroup->data( index );
 
     Member m;
     m.displayName = data.name();
@@ -199,7 +199,7 @@ void DistributionList::setFields( const KABC::ContactGroup* contactGroup )
     mDistrListMembers.append( m );
   }
   for ( uint index = 0; index < contactGroup->contactReferenceCount(); ++index ) {
-    const KABC::ContactGroup::ContactReference& data = contactGroup->contactReference( index );
+    const KContacts::ContactGroup::ContactReference& data = contactGroup->contactReference( index );
 
     Member m;
     m.uid = data.uid();
@@ -207,12 +207,12 @@ void DistributionList::setFields( const KABC::ContactGroup* contactGroup )
     mDistrListMembers.append( m );
   }
   if (contactGroup->contactGroupReferenceCount() > 0) {
-    kWarning() << "Tried to save contact group references, which should have been resolved already";
+    qWarning() << "Tried to save contact group references, which should have been resolved already";
   }
 }
 
 // The loading is: xml -> DistributionList -> contactgroup, this is the second part
-void DistributionList::saveTo( KABC::ContactGroup* contactGroup )
+void DistributionList::saveTo( KContacts::ContactGroup* contactGroup )
 {
   KolabBase::saveTo( contactGroup );
 
@@ -221,9 +221,9 @@ void DistributionList::saveTo( KABC::ContactGroup* contactGroup )
   QList<Member>::ConstIterator mit = mDistrListMembers.constBegin();
   for ( ; mit != mDistrListMembers.constEnd(); ++mit ) {
     if (!(*mit).uid.isEmpty()) {
-      contactGroup->append(KABC::ContactGroup::ContactReference( (*mit).uid ));
+      contactGroup->append(KContacts::ContactGroup::ContactReference( (*mit).uid ));
     } else {
-      contactGroup->append(KABC::ContactGroup::Data( (*mit).displayName, (*mit).email ));
+      contactGroup->append(KContacts::ContactGroup::Data( (*mit).displayName, (*mit).email ));
     }
   }
 }
