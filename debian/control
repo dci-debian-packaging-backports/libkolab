@@ -23,6 +23,7 @@ Build-Depends: cmake,
                php5-dev (>= 5.3),
                pkg-kde-tools (>= 0.12),
                python-dev (>= 2.7),
+               python3-dev,
                qtbase5-dev,
                swig
 X-Python-Version: >= 2.7
