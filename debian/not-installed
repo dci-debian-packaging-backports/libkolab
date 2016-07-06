@@ -1,1 +1,10 @@
 usr/lib/php5/20131226/*.php
+usr/lib/python2*/dist-packages/kolab/_calendaring.so
+usr/lib/python2*/dist-packages/kolab/_icalendar.so
+usr/lib/python2*/dist-packages/kolab/_kolabobject.so
+usr/lib/python2*/dist-packages/kolab/_shared.so
+usr/lib/python3/dist-packages/kolab/_calendaring.so
+usr/lib/python3/dist-packages/kolab/_icalendar.so
+usr/lib/python3/dist-packages/kolab/_kolabobject.so
+usr/lib/python3/dist-packages/kolab/_shared.so
+
