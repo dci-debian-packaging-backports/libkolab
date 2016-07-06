@@ -9,6 +9,9 @@ libkolab (1.0.2-1) UNRELEASED; urgency=medium
   [ Diane Trout ]
   * Bump libkf5akonadi-dev and notes-dev build deps to 4:15.12
 
+  [ Maximiliano Curia ]
+  * Update symbols files.
+
  -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 27 Jan 2016 13:59:00 +0100
 
 libkolab (1.0.0-1) experimental; urgency=medium
