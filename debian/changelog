@@ -1,4 +1,4 @@
-libkolab (1.0.2-1) UNRELEASED; urgency=medium
+libkolab (1.0.2-1) unstable; urgency=low
 
   [ Sandro Knauß ]
   * New upstream release.
@@ -12,7 +12,7 @@ libkolab (1.0.2-1) UNRELEASED; urgency=medium
   [ Maximiliano Curia ]
   * Update symbols files.
 
- -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 27 Jan 2016 13:59:00 +0100
+ -- Maximiliano Curia <maxy@debian.org>  Wed, 06 Jul 2016 23:33:19 +0200
 
 libkolab (1.0.0-1) experimental; urgency=medium
 
@@ -22,7 +22,7 @@ libkolab (1.0.0-1) experimental; urgency=medium
   * Delete unused lintian overrides.
   * Use symbolfiles instead of shlibs.
   * Add breaks/replaces for libkolab0v5
-  
+
   [Harald Sitter]
   * Updated dependencies using Qt5 and KF5.
   * Sobump from 0 to 1 (rename package accordingly)
