@@ -182,5 +182,6 @@ libkolab.so.1 libkolab1 #MINVER#
  (optional=templinst)_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EEaSERKS7_@Base 1.0.0
  (optional=templinst)_ZNSt6vectorIiSaIiEEC1IPivEET_S4_RKS0_@Base 1.0.0
  (optional=templinst)_ZNSt6vectorIiSaIiEEC2IPivEET_S4_RKS0_@Base 1.0.0
+ (optional=templinst)_ZSteqINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EEbRKSt6vectorIT_T0_ESC_@Base 1.0.2
  (optional=templinst)_ZSteqIcEN9__gnu_cxx11__enable_ifIXsrSt9__is_charIT_E7__valueEbE6__typeERKNSt7__cxx1112basic_stringIS3_St11char_traitsIS3_ESaIS3_EEESE_@Base 1.0.0
  _ZZN5Kolab12ErrorHandler8instanceEvE4inst@Base 1.0.0
