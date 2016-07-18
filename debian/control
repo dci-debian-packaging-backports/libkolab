@@ -19,8 +19,6 @@ Build-Depends: cmake,
                libkf5mime-dev (>=15.12.0),
                libkolabxml-dev (>= 1.1.1),
                libxerces-c-dev,
-               php5-cli,
-               php5-dev (>= 5.3),
                pkg-kde-tools (>= 0.12),
                python-dev (>= 2.7),
                python3-dev,
@@ -52,21 +50,6 @@ Description: Maps KDE containers to Kolab formats
   - calendaring:   Some general calendaring functions
  .
  The libkolab library belongs to the Kolab 3 server components.
-
-Package: php-kolab
-Architecture: any
-Depends: libkolab1 (= ${binary:Version}),
-         php-kolabformat,
-         ucf,
-         ${misc:Depends},
-         ${php:Depends},
-         ${shlibs:Depends}
-Description: PHP bindings for Kolab Library
- This package provides the Kolab PHP modules icalendar and calendaring.
- .
-  - The calendaring module provides some general calendaring functions
-  - The icalendar module exposes iCalendar functionality:
-    iCal reading/writing, iTip, iMip.
 
 Package: python-kolab
 Architecture: any

@@ -36,6 +36,14 @@ libkolab (1.0.0-1) experimental; urgency=medium
 
  -- Sandro Knauß <bugs@sandroknauss.de>  Wed, 25 Nov 2015 00:52:31 +0100
 
+libkolab (0.6.0-3.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * Remove PHP bindings as swig doesn't support PHP 7.0 yet.
+    (Closes: #821686)
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 15 Jun 2016 10:03:07 +0200
+
 libkolab (0.6.0-3) unstable; urgency=medium
 
   [ Sandro Knauß ]

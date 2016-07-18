@@ -4,7 +4,6 @@ include /usr/share/dpkg/architecture.mk
 DPKG_EXPORT_BUILDFLAGS=1
 include /usr/share/dpkg/buildflags.mk
 
-PHPAPI := $(shell php-config --phpapi)
 PYTHON2_SITEARCH := $(shell python2 -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)')
 PYTHON3_SITEARCH := $(shell python3 -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib(1))')
 export BUILD_PY3 := build-py3
@@ -18,10 +17,6 @@ export DEB_LDFLAGS_MAINT_APPEND="-Wl,--as-needed"
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		-DPHP_BINDINGS=ON \
-		-DPHP_INSTALL_DIR=/usr/lib/php5/$(PHPAPI)/ \
-		-DPHP_EXECUTABLE=/usr/bin/php5 \
-		-DPHP_INCLUDE_PATH=/usr/include/php5/ \
 		-DPYTHON_BINDINGS=ON \
 		-DPYTHON_INSTALL_DIR=$(PYTHON2_SITEARCH) \
 		-DPYTHON_INCLUDE_DIR=/usr/include/python2.7 \
@@ -37,10 +32,6 @@ override_dh_auto_build:
 	dh_auto_build --parallel --builddirectory=$(BUILD_PY3)
 	dh_auto_build --parallel
 
-override_dh_gencontrol:
-	echo "php:Depends=phpapi-${PHPAPI}" >> debian/php-kolab.substvars
-	dh_gencontrol
-
 override_dh_auto_install:
 	# Install the packages
 	dh_auto_install --builddirectory=$(BUILD_PY3)
@@ -52,7 +43,7 @@ override_dh_install:
 override_dh_auto_test:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -- -xkdepim-runtime 
+	dh_shlibdeps -- -xkdepim-runtime
 
 override_dh_auto_clean:
 	dh_auto_clean

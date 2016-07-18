@@ -1,7 +1,0 @@
-debian/kolab.ini usr/share/php5/kolab/
-debian/kolabdummy.ini usr/share/php5/kolabdummy/
-usr/lib/php5/*/*.so
-usr/lib/php5/*/kolabcalendaring.php usr/share/php/
-usr/lib/php5/*/kolabicalendar.php usr/share/php/
-usr/lib/php5/*/kolabobject.php usr/share/php/
-usr/lib/php5/*/kolabshared.php usr/share/php/
