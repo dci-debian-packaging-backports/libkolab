@@ -1,3 +1,9 @@
+libkolab (1.0.2-3) UNRELEASED; urgency=medium
+
+  * Merge nmu 0.6.0-3.1 changes (Closes: #821686)
+
+ -- Maximiliano Curia <maxy@debian.org>  Mon, 18 Jul 2016 13:06:12 +0200
+
 libkolab (1.0.2-2) unstable; urgency=low
 
   [ Diane Trout ]
